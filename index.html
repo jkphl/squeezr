@@ -12,13 +12,16 @@
 			<h1>Adaptive images with Squeezr</h1>
 			<p>The image below adapts to the <strong>screen dimensions</strong> (not: the window dimensions!) of the device used to view this page. The longer screen side length will be used for breakpoint calculation (taking display density into account as well). These are the cookies sent to the server:</p>
 			<pre><script type="text/javascript">
+			
 var c	= document.cookie.split('squeezr'),
 sc		= [];
 c.shift();
 while(c.length) {
 	sc.push('squeezr' + c.shift().split(';').shift());
 };
-document.write(sc.join('; '));</script></pre>
+document.write(sc.join('; '));
+
+			</script></pre>
 			<p>These are the breakpoints defined for this page (sorted in ascending order):</p>
 			<ol><li><script type="text/javascript">
 for (var s = 0, ss = document.getElementsByTagName('script'), sl = ss.length, sn = /squeezr\.(min\.)?js$/; s < sl; ++s) {

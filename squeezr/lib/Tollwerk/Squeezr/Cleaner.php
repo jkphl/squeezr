@@ -26,9 +26,7 @@ class Cleaner {
 	 * @return void
 	 */
 	public function clean() {
-		if (!$this->_cleanDirectory()) {
-			@exec('rm -R '.escapeshellarg($this->_base));
-		}
+		$this->_cleanDirectory();
 	}
 	
 	/************************************************************************************************
@@ -53,6 +51,8 @@ class Cleaner {
 	private function _cleanDirectory($path = '') {
 		$resources			= scandir($this->_base.$path);
 		$resourceCount		= count($resources);
+		$links				=
+		$files				= array();
 		
 		// Run through the directory contents
 		foreach ($resources as $resource) {
@@ -65,26 +65,98 @@ class Cleaner {
 				continue;
 			}
 			
-			// Recursively run clean all subdirectories
+			// If it's a directory ...
 			if (@is_dir($absResource)) {
-				if (!@is_dir($origResource) || !$this->_cleanDirectory($path.DIRECTORY_SEPARATOR.$resource)) {
+				if (!@is_dir($origResource) || !$this->_cleanDirectory(ltrim($path.DIRECTORY_SEPARATOR.$resource, DIRECTORY_SEPARATOR))) {
 					@exec('rm -R '.escapeshellarg($absResource));
 					--$resourceCount;
 				}
 				
-			// If it's a symlink: Check existence of linked target (must be a file)
+			// Else if it's a symbolic link ...
 			} elseif (@is_link($absResource)) {
-				if (!@is_file($origResource)) {
-					@unlink($absResource);
-					--$resourceCount;
-				}
+				$links[]			= $resource;
 				
-			// If it's a file: compare modification dates
+			// Else if it's a regular file
 			} elseif (@is_file($absResource)) {
-				if (!@is_file($origResource) || (@filemtime($origResource) > @filemtime($absResource))) {
-					@unlink($absResource);
+				$files[]			= $resource;
+				
+			// Else: No idea ... delete it!
+			} else {
+				if (@unlink($absResource)) {
 					--$resourceCount;
 				}
+			}
+		}
+		
+		// Check & clean regular files
+		foreach ($files as $file) {
+			$absResource						= $this->_base.$path.DIRECTORY_SEPARATOR.$file;
+			
+			// Proceed based on file extension
+			switch (strtolower(pathinfo($file, PATHINFO_EXTENSION))) {
+				
+				// CSS file
+				case 'css':
+					
+					// If it's a breakpoint CSS file 
+					if (preg_match("%^(.+)\-\d+\.css$%i", $file, $breakpointCssFile)) {
+						$origResource			= SQUEEZR_DOCROOT.$path.DIRECTORY_SEPARATOR.$breakpointCssFile[1].'.css';
+						
+					// Else: No idea ... delete it!
+					} else {
+						if (@unlink($absResource)) {
+							--$resourceCount;
+						}
+						continue 2;
+					}
+					break;
+					
+				// PHP cache file
+				case 'php':
+					
+					// If it's a PHP cache file
+					if (preg_match("%^(.+)\-squeezr\.css\.php$%i", $file, $phpCacheFile)) {
+						$origResource			= SQUEEZR_DOCROOT.$path.DIRECTORY_SEPARATOR.$phpCacheFile[1].'.css';
+					
+					// Else: No idea ... delete it!
+					} else {
+						if (@unlink($absResource)) {
+							--$resourceCount;
+						}
+						continue 2;
+					}
+					break;
+					
+				// Image files
+				case 'png':
+				case 'jpg':
+				case 'jpeg':
+				case 'gif':
+					$origResource				= SQUEEZR_DOCROOT.$path.DIRECTORY_SEPARATOR.$resource;
+					break;
+					
+				// Other extensions: Ignore
+				default:
+					continue 2;
+					break;
+			}
+			
+			// Remove the cache file if the original file doesn't exist anymore or is younger
+			if (!@is_file($origResource) || (@filemtime($origResource) > @filemtime($absResource))) {
+				if (@unlink($absResource)) {
+					--$resourceCount;
+				}
+			}
+		}
+		
+		// Check & clean symbolic links
+		foreach ($links as $link) {
+			$absResource						= $this->_base.$path.DIRECTORY_SEPARATOR.$link;
+			$origResource						= @readlink($absResource);
+			
+			// Delete the symbolic link if the original file doesn't exist anymore
+			if ((!$origResource || !@is_file($origResource)) && @unlink($absResource)) {
+				--$resourceCount;
 			}
 		}
 		

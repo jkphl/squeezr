@@ -46,10 +46,6 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
 	// Include the CSS engine
 	require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Tollwerk'.DIRECTORY_SEPARATOR.'Squeezr'.DIRECTORY_SEPARATOR.'Cleaner.php';
 	
-	// Run through all breakpoint directories
-	foreach (scandir(SQUEEZR_CACHEROOT) as $breakpointRoot) {
-		if (@is_dir(SQUEEZR_CACHEROOT.$breakpointRoot) && ($breakpointRoot != '.') && ($breakpointRoot != '..')) {
-			\Tollwerk\Squeezr\Cleaner::instance(SQUEEZR_CACHEROOT.$breakpointRoot)->clean();
-		}
-	}
+	// Clean the cache root directory
+	\Tollwerk\Squeezr\Cleaner::instance(SQUEEZR_CACHEROOT)->clean();
 }

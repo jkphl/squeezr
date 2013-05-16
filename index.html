@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Adaptive Images</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<script type="text/javascript" src="squeezr/squeezr.js" data-breakpoints-images="760,960,1024,1440,2000"></script>
+		<link rel="stylesheet" type="text/css" href="css/example.css" media="all" />
+	</head>
+	<body>
+		<section>
+			<h1>Adaptive images with Squeezr</h1>
+			<p>The image below adapts to the <strong>screen dimensions</strong> (not: the window dimensions!) of the device used to view this page. The longer screen side length will be used for breakpoint calculation (taking display density into account as well). These are the cookies sent to the server:</p>
+			<pre><script type="text/javascript">
+var c	= document.cookie.split('squeezr'),
+sc		= [];
+c.shift();
+while(c.length) {
+	sc.push('squeezr' + c.shift().split(';').shift());
+};
+document.write(sc.join('; '));</script></pre>
+			<p>These are the breakpoints defined for this page (sorted in ascending order):</p>
+			<ol><li><script type="text/javascript">
+for (var s = 0, ss = document.getElementsByTagName('script'), sl = ss.length, sn = /squeezr\.(min\.)?js$/; s < sl; ++s) {
+	if (sn.test(ss[s].src)) {
+		for (var b = 0, bs = (ss[s].getAttribute('data-breakpoints-images') || '').split(','), bl = bs.length, d = /(\d+(?:\.\d+)?)(px)?/i, br = [], m, v; b < bl; ++b) {
+			if (m = bs[b].match(d)) {
+				br.push(parseFloat(m[1], 10));
+			}
+		}
+		br.sort(function(a, b){ return a - b; });
+		document.write(br.join('px</li><li>') + 'px');
+		break;
+	}
+}	
+			</script></li></ol>
+			<p>The <em>squeezr.images</em> value (<em><script type="text/javascript">document.write(document.cookie.split('squeezr.images=').pop().split(';').shift());</script></em>) limits the maximum image side length returned by the server.</p>
+			<p><img src="img/example.jpg"/></p>
+		</section>
+	</body>
+</html>

@@ -1,0 +1,20 @@
+# URL rewriting (required for Squeezr to work) 
+<IfModule mod_rewrite.c>
+
+	# Start the rewrite engine
+	RewriteEngine On
+	RewriteBase /squeezr
+	
+	# Redirect non-existing image cache requests to Squeezr
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-l [OR]
+	RewriteCond %{QUERY_STRING} ^([^&]*&)*reset=file
+	RewriteRule ^cache\/(.*)-(\d+px)(\.(?:jpe?g|gif|png))$ index.php?engine=image&breakpoint=$2&source=$1$3 [NC,L]
+	
+	# Redirect non-existing css cache requests to Squeezr
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-l [OR]
+	RewriteCond %{QUERY_STRING} ^([^&]*&)*reset=file
+	RewriteRule ^cache\/(.*)-(\d+x\d+@\d+(?:\.\d+)?)\.css$ index.php?engine=css&breakpoint=$2&source=$1.css [NC,L]
+		
+</IfModule>

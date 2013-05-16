@@ -1,0 +1,49 @@
+# Deflating for text files
+<IfModule mod_deflate.c>
+	AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css text/javascript text/json text/x-json text/x-json-stream application/x-javascript application/json application/x-json application/x-json-stream application/.*xml.* multipart/x-json-stream multipart/x-mixed-replace image/svg+xml
+</IfModule>
+
+# Various expiration headers for proper file caching by browsers
+<IfModule mod_expires.c>
+
+	ExpiresActive on
+	
+	# Images
+	ExpiresByType image/gif "access plus 35 days"
+	ExpiresByType image/png "access plus 35 days"
+	ExpiresByType image/jpg "access plus 35 days"
+	ExpiresByType image/jpeg "access plus 35 days"
+	
+	# Text based files
+	ExpiresByType text/css "access plus 35 days"
+	ExpiresByType text/xml "access plus 35 days"
+	ExpiresByType text/javascript "access plus 35 days"
+	ExpiresByType application/x-shockwave-flash "access plus 35 days"
+	
+	# Default expiration
+	ExpiresDefault "access plus 1 days"
+	
+</IfModule>
+
+# URL rewriting (required for Squeezr to work) 
+<IfModule mod_rewrite.c>
+
+	# Start the rewrite engine
+	RewriteEngine On
+	RewriteBase /
+	
+	# Redirect any direct image request to cached version
+	RewriteCond %{REQUEST_FILENAME} -f
+	RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px
+	RewriteCond %{QUERY_STRING} !^([^&]*&)*squeezr=(0|false|no)
+	RewriteCond %{HTTP_COOKIE} squeezr.images=(\d+px) [NC]
+	RewriteRule ^(.+)(\.(?:jpe?g|gif|png))$ squeezr/cache/$1-%1$2 [NC,E=BREAKPOINT:%1]
+	
+	# Redirect any direct CSS request to cached version
+	RewriteCond %{REQUEST_FILENAME} -f
+	RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px
+	RewriteCond %{QUERY_STRING} !^([^&]*&)*squeezr=(0|false|no)
+	RewriteCond %{HTTP_COOKIE} squeezr.css=(\d+x\d+@\d+(?:\.\d+)?) [NC]
+	RewriteRule ^(.+)\.css$ squeezr/cache/$1-%1.css [NC,E=BREAKPOINT:%1]
+	
+</IfModule>

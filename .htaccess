@@ -27,6 +27,7 @@
 
 # URL rewriting (required for Squeezr to work) 
 <IfModule mod_rewrite.c>
+	Options +FollowSymlinks
 
 	# Start the rewrite engine
 	RewriteEngine On

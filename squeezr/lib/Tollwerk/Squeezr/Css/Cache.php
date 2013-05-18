@@ -140,9 +140,5 @@ namespace Tollwerk\Squeezr\Css {
 		}
 	}
 	
-	if (!empty($_SERVER['SCRIPT_FILENAME']) && @is_link($_SERVER['SCRIPT_FILENAME']) && (@readlink($_SERVER['SCRIPT_FILENAME']) == __FILE__)) {
-		die(strval(new Cache_b54f4ef9a2aa8fa76b4f0d722ea224b0()));
-	} else {
-		return new Cache_b54f4ef9a2aa8fa76b4f0d722ea224b0();
-	}
+	return new Cache_FILEHASH();
 }

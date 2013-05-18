@@ -38,13 +38,13 @@
 	RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px
 	RewriteCond %{QUERY_STRING} !^([^&]*&)*squeezr=(0|false|no)
 	RewriteCond %{HTTP_COOKIE} squeezr.images=(\d+px) [NC]
-	RewriteRule ^(.+)(\.(?:jpe?g|gif|png))$ squeezr/cache/$1-%1$2 [NC,E=BREAKPOINT:%1]
+	RewriteRule ^(.+)(\.(?:jpe?g|gif|png))$ squeezr/cache/$1-%1$2 [NC,E=BREAKPOINT:%1,L]
 	
 	# Redirect any direct CSS request to cached version
 	RewriteCond %{REQUEST_FILENAME} -f
 	RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px
 	RewriteCond %{QUERY_STRING} !^([^&]*&)*squeezr=(0|false|no)
 	RewriteCond %{HTTP_COOKIE} squeezr.css=(\d+x\d+@\d+(?:\.\d+)?) [NC]
-	RewriteRule ^(.+)\.css$ squeezr/cache/$1-%1.css [NC,E=BREAKPOINT:%1]
+	RewriteRule ^(.+)\.css$ squeezr/cache/$1-%1.css [NC,E=BREAKPOINT:%1,L]
 	
 </IfModule>

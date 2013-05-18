@@ -49,7 +49,7 @@ abstract class Squeezr {
 	
 		// Send basic headers
 		header('Content-Type: '.$mime);
-		header('Content-Length: '.filesize($src));
+		header('Content-Length: '.filesize(@is_link($src) ? @readlink($src) : $src));
 	
 		// If the client browser should cache the image
 		if ($cache) {
@@ -75,6 +75,7 @@ abstract class Squeezr {
 	 * @return string				File ETag
 	 */
 	private function _calculateFileETag($src) {
+		$src						= @is_link($src) ? @readlink($src) : $src;
 		$fileStats					= stat($src);
 		$fileFulltime				= @exec('ls --full-time '.escapeshellarg($src));
 		$fileMtime					= str_pad(preg_match("%\d+\:\d+\:\d+\.(\d+)%", $fileFulltime, $fileMtime) ? substr($fileStats['mtime'].$fileMtime[1], 0, 16) : $fileStats['mtime'], 16, '0');

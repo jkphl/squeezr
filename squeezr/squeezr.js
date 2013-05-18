@@ -1,4 +1,4 @@
-(function(w){
+//(function(w){
 	if (navigator.cookieEnabled) {
 		var squeezr					= 'squeezr',
 		path						= ';path=/',
@@ -104,8 +104,8 @@
 		}
 		
 		// Run through all document JavaScripts and find the Squeezr script (must reference a script file named "squeezr.js" or carry an ID attribute with value "squeezr")
-		for (var index = 0, scripts = doc.getElementsByTagName('script'), scriptSrcPattern = /squeezr\.(min\.)?js$/; index < scripts.length; ++index) {
-			if ((scripts[index].id == squeezr) || scriptSrcPattern.test(scripts[index].src)) {
+		for (var index = 0, scripts = doc.getElementsByTagName('script'); index < scripts.length; ++index) {
+			if (scripts[index].id == squeezr) {
 				var pixelRatio			= getDevicePixelRatio(),
 				imgBreakpoint			= '-';
 				
@@ -139,4 +139,4 @@
 			}
 		}
 	}
-})(this);
+//})(this);

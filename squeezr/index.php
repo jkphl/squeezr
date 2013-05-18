@@ -48,4 +48,7 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
 	
 	// Clean the cache root directory
 	\Tollwerk\Squeezr\Cleaner::instance(SQUEEZR_CACHEROOT)->clean();
+	
+	// Respond with an empty content	
+	header('HTTP/1.1 204 No Content');
 }

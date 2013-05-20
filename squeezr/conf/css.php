@@ -1,26 +1,58 @@
 <?php
 
 /**
- * Pixel-Em-Ratio
+ * CSS engine configuration
+ * 
+ * The following configuration options affect the squeezr CSS engine only.
+ *
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+ * @link		http://squeezr.net
+ * @github		https://github.com/jkphl/squeezr
+ * @twitter		@squeezr
+ * @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
+ * @since		1.0b
+ * @version		1.0b
+ */
+
+/**
+ * Activate the CSS engine
+ * 
+ * Set this to FALSE if you want to disable the CSS engine TEMPORARILY. For disabling it permanently
+ * you should better remove the corresponding rewrite rules in the .htaccess files, as there will be
+ * no proper browser cache handling otherwise. This is for development purposes only.
+ * 
+ * @var boolean
+ */
+define('SQUEEZR_CSS', true);
+
+/**
+ * Em-to-pixel ratio
+ * 
+ * This is the default factor used to convert from em to pixels. In most cases 16.0 should be
+ * a reasonable value (as most browsers use this by default).
  * 
  * @var float
  */
-define('SQUEEZR_CSS_EM_PX', 16.0);
+define('SQUEEZR_CSS_EM2PX', 16.0);
 
 /**
  * CSS minification provider
  * 
  * Enter the class name of the CSS minification provider you want to use. The class must be found
- * inside a file with the same name (plus .php extension) lying in the folder Tollwerk\Squeezr\Css\Minifier,
- * and it must implement the interface Tollwerk\Squeezr\Css\Minifier.
+ * inside a file with the same name (UpperCamelCased plus .php extension) located in the folder
+ * Tollwerk\Squeezr\Css\Minifier, and it must implement the interface Tollwerk\Squeezr\Css\Minifier.
  * 
- * Current valid options are:
+ * Currently only "Minify" as a minification provider is implemented, and squeezr comes with a
+ * copy of Minify preinstalled (you can find it under SQUEEZR_ROOT/plugins/minify). Minify is a
+ * great project of it's own, please visit it at it's homepage or at it's GitHub repository:
  * 
- * - Minify
- * - Cssmin
+ * @link		https://code.google.com/p/minify/
+ * @github		https://github.com/mrclay/minify
  * 
  * If you do not want to use CSS minification provide NULL here. 
  * 
  * @var string
  */
-define('SQUEEZR_CSS_MINIFICATION_PROVIDER', 'minify');
+define('SQUEEZR_CSS_MINIFICATION_PROVIDER', 'Minify');

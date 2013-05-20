@@ -1,9 +1,80 @@
-# Deflating for text files
+#############################################################################################################
+# Main squeezr rewrite rules (and some more stuff)
+# 
+# Below you can find the main rewrite rules squeezr needs to work, plus some .htaccess candies that should
+# also improve your website's speed. In case you already have a .htaccess file for your website, please make
+# sure you don't simply overwrite it with this file, since it will most likely break your existing setup.
+# Instead you will have to integrate the following rules thoroughly into your setup. You have been warned. ;)
+#
+# @package		squeezr
+# @author		Joschi Kuphal <joschi@kuphal.net>
+# @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+# @link			http://squeezr.net
+# @github		https://github.com/jkphl/squeezr
+# @twitter		@squeezr
+# @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
+# @since		1.0b
+# @version		1.0b
+#############################################################################################################
+
+# URL rewriting (required for squeezr to work) 
+<IfModule mod_rewrite.c>
+	Options +FollowSymlinks
+
+	# Start the rewrite engine
+	RewriteEngine On
+	RewriteBase /
+	
+#############################################################################################################
+# REDIRECT ANY DIRECT IMAGE REQUEST TO A CACHED VERSION
+#
+# You may add files or directories that shouldn't be touched by squeezr like this:
+#
+#	RewriteCond %{REQUEST_URI} !path/to/some/file-or-directory
+#
+# Please refer to the mod_rewrite documentation at http://httpd.apache.org/docs/2.0/mod/mod_rewrite.html for
+# further possibilities and instructions,
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	RewriteCond %{REQUEST_FILENAME} -f
+	RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px
+	RewriteCond %{QUERY_STRING} !^([^&]*&)*squeezr=(0|false|no)
+	RewriteCond %{HTTP_COOKIE} squeezr.images=(\d+px) [NC]
+	RewriteRule ^(.+)(\.(?:jpe?g|gif|png))$ squeezr/cache/$1-%1$2 [NC,E=BREAKPOINT:%1,L]
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Please make sure that you set this path     ^^^     to the squeezr root directory that is also specified
+# for the SQUEEZR_ROOT constant in the common engine configuration (SQUEEZR_ROOT/conf/common.php). If you
+# apply the default setup for squeezr (i.e. put everything into a directory named "squeezr" under your
+# website's document root), then you shouldn't have to change anything.
+#############################################################################################################
+	
+	
+#############################################################################################################
+# REDIRECT ANY DIRECT CSS REQUEST TO A CACHED VERSION
+#
+# See above for some hints about excluding files or directories from the squeezr processing
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	RewriteCond %{REQUEST_FILENAME} -f
+	RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px
+	RewriteCond %{QUERY_STRING} !^([^&]*&)*squeezr=(0|false|no)
+	RewriteCond %{HTTP_COOKIE} squeezr.css=(\d+x\d+@\d+(?:\.\d+)?) [NC]
+	RewriteRule ^(.+)\.css$ squeezr/cache/$1-%1.css [NC,E=BREAKPOINT:%1,L]
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# See above for hints on      ^^^     this path.
+#############################################################################################################
+
+</IfModule>
+
+
+#############################################################################################################
+# Additional stuff for improving your website's delivery performance
+#############################################################################################################
+
+# Deflating for text files (not required for squeezr, but recommended anyway)
 <IfModule mod_deflate.c>
 	AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css text/javascript text/json text/x-json text/x-json-stream application/x-javascript application/json application/x-json application/x-json-stream application/.*xml.* multipart/x-json-stream multipart/x-mixed-replace image/svg+xml
 </IfModule>
 
-# Various expiration headers for proper file caching by browsers
+# Various expiration headers for proper file caching (not required for squeezr, but recommended anyway)
 <IfModule mod_expires.c>
 
 	ExpiresActive on
@@ -22,29 +93,5 @@
 	
 	# Default expiration
 	ExpiresDefault "access plus 1 days"
-	
-</IfModule>
-
-# URL rewriting (required for Squeezr to work) 
-<IfModule mod_rewrite.c>
-	Options +FollowSymlinks
-
-	# Start the rewrite engine
-	RewriteEngine On
-	RewriteBase /
-	
-	# Redirect any direct image request to cached version
-	RewriteCond %{REQUEST_FILENAME} -f
-	RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px
-	RewriteCond %{QUERY_STRING} !^([^&]*&)*squeezr=(0|false|no)
-	RewriteCond %{HTTP_COOKIE} squeezr.images=(\d+px) [NC]
-	RewriteRule ^(.+)(\.(?:jpe?g|gif|png))$ squeezr/cache/$1-%1$2 [NC,E=BREAKPOINT:%1,L]
-	
-	# Redirect any direct CSS request to cached version
-	RewriteCond %{REQUEST_FILENAME} -f
-	RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px
-	RewriteCond %{QUERY_STRING} !^([^&]*&)*squeezr=(0|false|no)
-	RewriteCond %{HTTP_COOKIE} squeezr.css=(\d+x\d+@\d+(?:\.\d+)?) [NC]
-	RewriteRule ^(.+)\.css$ squeezr/cache/$1-%1.css [NC,E=BREAKPOINT:%1,L]
 	
 </IfModule>

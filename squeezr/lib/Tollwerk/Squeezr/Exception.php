@@ -1,12 +1,28 @@
 <?php
 
+/**
+ * Error messages
+ * 
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+ * @link		http://squeezr.net
+ * @github		https://github.com/jkphl/squeezr
+ * @twitter		@squeezr
+ * @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
+ * @since		1.0b
+ * @version		1.0b
+ */
+
 namespace Tollwerk\Squeezr;
 
 /**
- * Server side media query proxy
- * 
- * @author joschi
+ * squeezr exception
  *
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @since		1.0b
+ * @version		1.0b
  */
 class Exception extends \Exception {
 	/**
@@ -20,7 +36,7 @@ class Exception extends \Exception {
 	 *
 	 * @var string
 	 */
-	const INVALID_TARGET_CACHE_DIRECTORY_MSG = 'Squeezr cache directory non-existent and could not be created';
+	const INVALID_TARGET_CACHE_DIRECTORY_MSG = 'squeezr cache directory non-existent and could not be created';
 	/**
 	 * Missing metrics cookie
 	 * 
@@ -32,7 +48,19 @@ class Exception extends \Exception {
 	 *
 	 * @var string
 	 */
-	const MISSING_METRICS_COOKIE_MSG = 'Squeezr metrics cookie missing or invalid';
+	const MISSING_METRICS_COOKIE_MSG = 'squeezr metrics cookie missing or invalid';
+	/**
+	 * Failed writing cache file
+	 *
+	 * @var int
+	 */
+	const FAILED_WRITING_CACHE_FILE = 2;
+	/**
+	 * Failed writing cache file
+	 *
+	 * @var string
+	 */
+	const FAILED_WRITING_CACHE_FILE_STR = 'Failed writing cache file "%s"';
 
 	/**
 	 * Invalid CSS file
@@ -95,20 +123,6 @@ class Exception extends \Exception {
 	 */
 	const UNBALANCED_DECLARATION_BLOCK_STR = 'Unbalanced declaration block at line %s';
 	/**
-	 * Failed writing cache file
-	 *
-	 * @var int
-	 */
-	const FAILED_WRITING_CACHE_FILE = 107;
-	/**
-	 * Failed writing cache file
-	 *
-	 * @var string
-	 */
-	const FAILED_WRITING_CACHE_FILE_STR = 'Failed writing cache file "%s"';
-	
-	
-	/**
 	 * Invalid image file
 	 *
 	 * @var int
@@ -131,7 +145,7 @@ class Exception extends \Exception {
 	 *
 	 * @var string
 	 */
-	const GD_UNAVAILABLE_MSG = 'Squeezr needs the GD library to be available';
+	const GD_UNAVAILABLE_MSG = 'squeezr needs the GD library to be available';
 	/**
 	 * Breakpoint copy cache failed
 	 * 

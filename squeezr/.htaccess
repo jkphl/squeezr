@@ -1,17 +1,38 @@
-# URL rewriting (required for Squeezr to work) 
+#############################################################################################################
+# Internal squeezr rewrite rules
+# 
+# You shouldn't need to change anything here (but the RewriteBase directory in case you don't apply the
+# default setup for squeezr).
+#
+# @package		squeezr
+# @author		Joschi Kuphal <joschi@kuphal.net>
+# @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+# @link			http://squeezr.net
+# @github		https://github.com/jkphl/squeezr
+# @twitter		@squeezr
+# @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
+# @since		1.0b
+# @version		1.0b
+#############################################################################################################
+
+# URL rewriting (required for squeezr to work) 
 <IfModule mod_rewrite.c>
 
 	# Start the rewrite engine
 	RewriteEngine On
 	RewriteBase /squeezr
+#################       #####################################################################################
+# Set this path    ^^^    appropriately in case you don't apply the default setup for squeezr. See the main
+# .htaccess file respectively the common engine configuration SQUEEZR_ROOT/conf/common.php for details.
+#############################################################################################################
 	
-	# Redirect non-existing image cache requests to Squeezr
+	# Redirect non-existing image cache requests to squeezr
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-l [OR]
 	RewriteCond %{QUERY_STRING} ^([^&]*&)*reset=file
 	RewriteRule ^cache\/(.*)-(\d+px)(\.(?:jpe?g|gif|png))$ index.php?engine=image&breakpoint=$2&source=$1$3 [NC,L]
 	
-	# Redirect non-existing css cache requests to Squeezr
+	# Redirect non-existing css cache requests to squeezr
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-l [OR]
 	RewriteCond %{QUERY_STRING} ^([^&]*&)*reset=file

@@ -1,14 +1,31 @@
 <?php
 
+/**
+ * Server side treatment of media queries
+ * 
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+ * @link		http://squeezr.net
+ * @github		https://github.com/jkphl/squeezr
+ * @twitter		@squeezr
+ * @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
+ * @since		1.0b
+ * @version		1.0b
+ */
+
 namespace Tollwerk\Squeezr;
 
+// Require the abstract engine base class
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'Squeezr.php';
 
 /**
- * Server side media query proxy
- * 
- * @author joschi
+ * CSS engine / media query proxy
  *
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @since		1.0b
+ * @version		1.0b
  */
 class Css extends \Tollwerk\Squeezr {
 	/**
@@ -128,7 +145,7 @@ class Css extends \Tollwerk\Squeezr {
 		if ((!@is_dir($this->_absoluteCacheCssDir) && !@mkdir($this->_absoluteCacheCssDir, 0777, true)) || !@is_writable($this->_absoluteCacheCssDir)) {
 			$this->_addErrorHeader(\Tollwerk\Squeezr\Exception::INVALID_TARGET_CACHE_DIRECTORY_MSG, \Tollwerk\Squeezr\Exception::INVALID_TARGET_CACHE_DIRECTORY);
 		
-		// If the Squeezr screen cookie is not available or invalid
+		// If the squeezr screen cookie is not available or invalid
 		} elseif (empty($_COOKIE['squeezr_css']) || !preg_match("%^(\d+)x(\d+)\@(\d+(?:\.\d+)?)$%", $_COOKIE['squeezr_css'], $squeezr)) {
 			$this->_addErrorHeader(\Tollwerk\Squeezr\Exception::MISSING_METRICS_COOKIE_MSG, \Tollwerk\Squeezr\Exception::MISSING_METRICS_COOKIE);
 		
@@ -145,8 +162,13 @@ class Css extends \Tollwerk\Squeezr {
 				// Compile the cacheable CSS file PHP class
 				$cacheClassCode			= trim($this->_compileCacheClassCode());
 				
-				// Write the PHP cache class file to disk
-				$cache && file_put_contents($this->_absoluteCachePhpPath, $cacheClassCode);
+				// If the file should be cached: Write the PHP cache class file to disk
+				if ($cache && !@file_put_contents($this->_absoluteCachePhpPath, $cacheClassCode)) {
+					$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $this->_absoluteCachePhpPath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
+					
+					// Disable caching alltogether
+					$cache				= false;
+				}
 				
 				// Instanciate the cache class
 				$cacheInstance			= eval(substr($cacheClassCode, 5));
@@ -158,8 +180,22 @@ class Css extends \Tollwerk\Squeezr {
 				
 				// Render the breakpoint specific CSS (if not available yet) and create a request specific symlink
 				$breakpointsCachePath	= $this->_absoluteCachePathBase.$cacheInstance->getMatchingBreakpoints().'.css';
-				if ((@is_file($breakpointsCachePath) || @file_put_contents($breakpointsCachePath, $returnCss)) && @symlink($breakpointsCachePath, $this->_absoluteCacheCssPath)) {
-					$returnCssFile		= $this->_absoluteCacheCssPath;
+				
+				// If caching is enabled ...
+				if ($cache) {
+				
+					// If the breakpoint specific CSS cannot be created: Caching error
+					if (!@is_file($breakpointsCachePath) && !@file_put_contents($breakpointsCachePath, $returnCss)) {
+						$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $breakpointsCachePath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
+						
+					// Else if the breakpoint specific CSS cannot be symlinked: Caching error 
+					} elseif (!@symlink($breakpointsCachePath, $this->_absoluteCacheCssPath)) {
+						$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $this->_absoluteCacheCssPath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
+						
+					// Else: Return the cached file
+					} else {
+						$returnCssFile	= $this->_absoluteCacheCssPath;
+					}
 				}
 			}
 		}
@@ -187,8 +223,8 @@ class Css extends \Tollwerk\Squeezr {
 	/**
 	 * Constructor
 	 * 
-	 * @param string $css									Requested CSS file (relative to document root)
-	 * @throws \Tollwerk\Squeezr\Exception					If the requested CSS file doesn't exist
+	 * @param string $css							Requested CSS file (relative to document root)
+	 * @throws \Tollwerk\Squeezr\Exception			If the requested CSS file doesn't exist
 	 */
 	private function __construct($css) {
 		$this->_relativeCssPath						= ltrim($css, DIRECTORY_SEPARATOR);
@@ -210,7 +246,8 @@ class Css extends \Tollwerk\Squeezr {
 	/**
 	 * Parse and analyze the requested CSS file
 	 * 
-	 * @throws \Tollwerk\Squeezr\Exception		On any parser error
+	 * @throws \Tollwerk\Squeezr\Exception			On any parser error
+	 * @todo joschi									Implement media query support for @import rules
 	 */
 	private function _parse() {
 		$origCss									= '';
@@ -281,11 +318,8 @@ class Css extends \Tollwerk\Squeezr {
 						
 						break;
 						
-					// @import rule
+					// @import rule: May contain media query, should be implemented
 					case 'import':
-						// TODO joschi: Implement
-						// Kann @media query enthalten
-						// Sollte ggf. eingelesen und integriert werden
 						break;
 						
 					// Single line @-rules (except @import)
@@ -350,7 +384,7 @@ class Css extends \Tollwerk\Squeezr {
 	 * @param int $offset							Optional: Offset position
 	 * @param int $declarationBlockStart			Set by reference: Declaration block start position within the CSS text
 	 * @return string								Declaration block (starting at the beginning of the CSS text)
-	 * @throws \Tollwerk\Squeezr\Exception	If there is no declaration block starting or if it's unbalanced
+	 * @throws \Tollwerk\Squeezr\Exception			If there is no declaration block starting or if it's unbalanced
 	 */
 	private function _consumeDeclarationBlock($css, $peek, $offset = 0, &$declarationBlockStart = 0) {
 		$declarationBlockStart				= strpos($css, '{', $offset);
@@ -381,6 +415,7 @@ class Css extends \Tollwerk\Squeezr {
 	 * 
 	 * @param string $mediaQuery					@media query
 	 * @return array|null							Breakpoint alternatives
+	 * @todo joschi									Implement support for "resolution" media queries
 	 */
 	protected function _breakpoints($mediaQuery) {
 		$breakpointAlternatives						= array();
@@ -421,8 +456,6 @@ class Css extends \Tollwerk\Squeezr {
 			
 			$breakpointAlternatives[]				= $breakpoints;
 		}
-		
-		// TODO joschi: Resolution
 		
 		return count($breakpointAlternatives) ? $breakpointAlternatives : null;
 	}

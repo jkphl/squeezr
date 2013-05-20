@@ -1,12 +1,28 @@
 <?php
 
+/**
+ * Cache cleaning
+ * 
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+ * @link		http://squeezr.net
+ * @github		https://github.com/jkphl/squeezr
+ * @twitter		@squeezr
+ * @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
+ * @since		1.0b
+ * @version		1.0b
+ */
+
 namespace Tollwerk\Squeezr;
 
 /**
- * Server side image adaptor
- * 
- * @author joschi
+ * Cache cleaner engine
  *
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @since		1.0b
+ * @version		1.0b
  */
 class Cleaner {
 	/**
@@ -67,16 +83,18 @@ class Cleaner {
 			
 			// If it's a directory ...
 			if (@is_dir($absResource)) {
+				
+				// Clean recursively and remove it alltogether in case it remains empty
 				if (!@is_dir($origResource) || !$this->_cleanDirectory(ltrim($path.DIRECTORY_SEPARATOR.$resource, DIRECTORY_SEPARATOR))) {
 					@exec('rm -R '.escapeshellarg($absResource));
 					--$resourceCount;
 				}
 				
-			// Else if it's a symbolic link ...
+			// Else if it's a symbolic link: register it
 			} elseif (@is_link($absResource)) {
 				$links[]			= $resource;
 				
-			// Else if it's a regular file
+			// Else if it's a regular file: register it
 			} elseif (@is_file($absResource)) {
 				$files[]			= $resource;
 				

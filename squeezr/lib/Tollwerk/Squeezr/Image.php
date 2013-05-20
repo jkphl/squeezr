@@ -1,14 +1,31 @@
 <?php
 
+/**
+ * Server side treatment of media queries
+ * 
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+ * @link		http://squeezr.net
+ * @github		https://github.com/jkphl/squeezr
+ * @twitter		@squeezr
+ * @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
+ * @since		1.0b
+ * @version		1.0b
+ */
+
 namespace Tollwerk\Squeezr;
 
+// Require the abstract engine base class
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'Squeezr.php';
 
 /**
- * Server side image adaptor
- * 
- * @author joschi
+ * Image engine
  *
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @since		1.0b
+ * @version		1.0b
  */
 class Image extends \Tollwerk\Squeezr {
 	/**
@@ -59,7 +76,7 @@ class Image extends \Tollwerk\Squeezr {
 		} elseif ((!@is_dir($this->_absoluteCacheImageDir) && !@mkdir($this->_absoluteCacheImageDir, 0777, true)) || !@is_writable($this->_absoluteCacheImageDir)) {
 			$this->_addErrorHeader(\Tollwerk\Squeezr\Exception::INVALID_TARGET_CACHE_DIRECTORY_MSG, \Tollwerk\Squeezr\Exception::INVALID_TARGET_CACHE_DIRECTORY);
 		
-		// If the Squeezr screen cookie is not available or invalid
+		// If the squeezr screen cookie is not available or invalid
 		} elseif (empty($_COOKIE['squeezr_screen']) || !preg_match("%^(\d+)x(\d+)\@(\d+(?:\.\d+)?)$%", $_COOKIE['squeezr_screen'], $squeezr)) {
 			$this->_addErrorHeader(\Tollwerk\Squeezr\Exception::MISSING_METRICS_COOKIE_MSG, \Tollwerk\Squeezr\Exception::MISSING_METRICS_COOKIE);
 		
@@ -77,37 +94,43 @@ class Image extends \Tollwerk\Squeezr {
 		
 				// Prepare target parameters
 				$targetHeight			= round($targetWidth * $height / $width);
-				$targetImage	        = ImageCreateTrueColor($targetWidth, $targetHeight);
+				$targetImage	        = imagecreatetruecolor($targetWidth, $targetHeight);
 				$extension				= strtolower(pathinfo($this->_absoluteImagePath, PATHINFO_EXTENSION));
 		
 				// Create source image
 				switch ($extension) {
+					
+					// PNG files
 					case 'png':
-						$sourceImage	= @ImageCreateFromPng($this->_absoluteImagePath);
+						$sourceImage	= @imagecreatefrompng($this->_absoluteImagePath);
 						imagealphablending($targetImage, false);
 						imagesavealpha($targetImage,true);
 						$transparent	= imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
 						imagefilledrectangle($targetImage, 0, 0, $targetWidth, $targetHeight, $transparent);
 						break;
+						
+					// GIF files
 					case 'gif':
-						$sourceImage	= @ImageCreateFromGif($this->_absoluteImagePath);
+						$sourceImage	= @imagecreatefromgif($this->_absoluteImagePath);
 						break;
+						
+					// JPEG files
 					default:
-						$sourceImage	= @ImageCreateFromJpeg($this->_absoluteImagePath);
+						$sourceImage	= @imagecreatefromjpeg($this->_absoluteImagePath);
 		
 						// Enable interlacing for progressive JPEGs
-						ImageInterlace($targetImage, true);
+						imageinterlace($targetImage, true);
 						break;
 				}
 		
 				// Resize & resample the image
-				ImageCopyResampled($targetImage, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+				imagecopyresampled($targetImage, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
 		
 				// Destroy the source file descriptor
-				ImageDestroy($sourceImage);
+				imagedestroy($sourceImage);
 		
 				// Sharpen image if possible and requested
-				if (!!SQUEEZR_SHARPEN && function_exists('imageconvolution')) {
+				if (!!SQUEEZR_IMAGE_SHARPEN && function_exists('imageconvolution')) {
 					$intFinal			= $targetWidth * (750.0 / $width);
 					$intA     			= 52;
 					$intB     			= -0.27810650887573124;
@@ -131,12 +154,12 @@ class Image extends \Tollwerk\Squeezr {
 						$saved			= ImageGif($targetImage, $this->_absoluteCacheImagePath);
 						break;
 					default:
-						$saved			= ImageJpeg($targetImage, $this->_absoluteCacheImagePath, min(100, max(1, intval(SQUEEZR_JPEG_QUALITY))));
+						$saved			= ImageJpeg($targetImage, $this->_absoluteCacheImagePath, min(100, max(1, intval(SQUEEZR_IMAGE_JPEG_QUALITY))));
 						break;
 				}
 		
 				// Destroy target image descriptor
-				ImageDestroy($targetImage);
+				imagedestroy($targetImage);
 		
 				// If target image could be created: Send it
 				if ($saved && @file_exists($this->_absoluteCacheImagePath)) {
@@ -148,7 +171,7 @@ class Image extends \Tollwerk\Squeezr {
 				}
 		
 			// Else: No downsampling necessary, try to cache a copy of the original image to avoid subsequent squeeze attempts
-			} elseif (!@symlink($this->_absoluteImagePath, $this->_absoluteCacheImagePath) && (SQUEEZR_CACHE_UNDERSIZED ? !@copy($this->_absoluteImagePath, $this->_absoluteCacheImagePath) : true)) {
+			} elseif (!@symlink($this->_absoluteImagePath, $this->_absoluteCacheImagePath) && (SQUEEZR_IMAGE_COPY_UNDERSIZED ? !@copy($this->_absoluteImagePath, $this->_absoluteCacheImagePath) : true)) {
 				$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_COPY_CACHE_MSG, $this->_relativeImagePath), \Tollwerk\Squeezr\Exception::FAILED_COPY_CACHE);
 		
 			// Else: Return target image
@@ -170,8 +193,8 @@ class Image extends \Tollwerk\Squeezr {
 	/**
 	 * Constructor
 	 *
-	 * @param string $image										Image file
-	 * @throws \Tollwerk\Squeezr\Exception				If the requested image file doesn't exist
+	 * @param string $image							Image file
+	 * @throws \Tollwerk\Squeezr\Exception			If the requested image file doesn't exist
 	 */
 	private function __construct($image) {
 		$this->_relativeImagePath					= ltrim($image, DIRECTORY_SEPARATOR);
@@ -195,9 +218,9 @@ class Image extends \Tollwerk\Squeezr {
 	/**
 	 * Instanciate an image adaptor
 	 *
-	 * @param string $image										Image file
-	 * @return \Tollwerk\Squeezr\Image					Instance reference
-	 * @throws \Tollwerk\Squeezr\Exception				If the requested image cache file is invalid
+	 * @param string $image							Image file
+	 * @return \Tollwerk\Squeezr\Image				Instance reference
+	 * @throws \Tollwerk\Squeezr\Exception			If the requested image cache file is invalid
 	 */
 	public static function instance($image) {
 		return new self($image);

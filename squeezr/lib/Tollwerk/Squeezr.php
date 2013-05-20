@@ -1,12 +1,30 @@
 <?php
 
+/**
+ * squeezr engine base 
+ * 
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+ * @link		http://squeezr.net
+ * @github		https://github.com/jkphl/squeezr
+ * @twitter		@squeezr
+ * @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
+ * @since		1.0b
+ * @version		1.0b
+ */
+
 namespace Tollwerk;
 
 /**
  * Abstract Squeezr base class containing some common functionality
  * 
- * @author joschi
+ * The core functionality for all squeezr engines basically deals with responding the correct file and header data.
  *
+ * @package		squeezr
+ * @author		Joschi Kuphal <joschi@kuphal.net>
+ * @since		1.0b
+ * @version		1.0b
  */
 abstract class Squeezr {
 	/**
@@ -21,7 +39,7 @@ abstract class Squeezr {
 	 ***********************************************************************************************/
 	
 	/**
-	 * Add an HTTP error header
+	 * Add a HTTP error header
 	 *
 	 * @param string $error				Error message
 	 * @param int $errorNumber			Error number
@@ -58,7 +76,7 @@ abstract class Squeezr {
 			header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($src)).' GMT');
 			header('ETag: '.$this->_calculateFileETag($src));
 				
-			// Else
+		// Else
 		} else {
 			header('Cache-Control: no-cache, must-revalidate');
 			header('Expires: '.gmdate('D, d M Y H:i:s', time() - SQUEEZR_CACHE_LIFETIME).' GMT');

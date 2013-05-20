@@ -1,4 +1,4 @@
-//(function(w){
+(function(w){
 	if (navigator.cookieEnabled) {
 		var squeezr					= 'squeezr',
 		path						= ';path=/',
@@ -8,9 +8,9 @@
 		screenHeight				= screen.height;
 
 		/**
-		 * Extract the Squeezr cookie values
+		 * Extract the squeezr cookie values
 		 * 
-		 * @return {Object}				Squeezr cookie values
+		 * @return {Object}				squeezr cookie values
 		 */
 		function getSqueezrCookies() {
 			for (var index = 0, cookieParts = doc.cookie.split(';'), cookiePattern = /^\ssqueezr\.([^=]+)=(.*?)\s*$/, cookies = {}, cookie; index < cookieParts.length; ++index) {
@@ -103,7 +103,7 @@
 			return precision * Math.round(10 * em / precision) / 10;
 		}
 		
-		// Run through all document JavaScripts and find the Squeezr script (must reference a script file named "squeezr.js" or carry an ID attribute with value "squeezr")
+		// Run through all document JavaScripts and find the squeezr script (must reference a script file named "squeezr.js" or carry an ID attribute with value "squeezr")
 		for (var index = 0, scripts = doc.getElementsByTagName('script'); index < scripts.length; ++index) {
 			if (scripts[index].id == squeezr) {
 				var pixelRatio			= getDevicePixelRatio(),
@@ -126,7 +126,7 @@
 				}
 				doc.cookie				= squeezr + '.images=' + imgBreakpoint + path;
 				
-				// Determine the Squeezr cookie values
+				// Determine the squeezr cookie values
 				var cookies				= getSqueezrCookies(),
 				cssBreakpoint			= cookies.css || '-';
 				if ((!('css' in cookies) || !cookies.css || (cookies.css == '-')) && !scripts[index].getAttribute('data-disable-css')) {
@@ -139,4 +139,4 @@
 			}
 		}
 	}
-//})(this);
+})(this);

@@ -28,16 +28,6 @@
 define('SQUEEZR_CSS', true);
 
 /**
- * Em-to-pixel ratio
- * 
- * This is the default factor used to convert from em to pixels. In most cases 16.0 should be
- * a reasonable value (as most browsers use this by default).
- * 
- * @var float
- */
-define('SQUEEZR_CSS_EM2PX', 16.0);
-
-/**
  * CSS minification provider
  * 
  * Enter the class name of the CSS minification provider you want to use. The class must be found

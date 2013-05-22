@@ -33,43 +33,43 @@ class Css extends \Tollwerk\Squeezr {
 	 *
 	 * @var string
 	 */
-	private $_relativeCssPath = null;
+	protected $_relativeCssPath = null;
 	/**
 	 * Requested CSS file (absolute path)
 	 * 
 	 * @var string
 	 */
-	private $_absoluteCssPath = null;
+	protected $_absoluteCssPath = null;
 	/**
 	 * Base path for all cache files
 	 * 
 	 * @var string
 	 */
-	private $_absoluteCachePathBase = null;
+	protected $_absoluteCachePathBase = null;
 	/**
 	 * Cached CSS file (absolute path)
 	 *
 	 * @var string
 	 */
-	private $_absoluteCacheCssPath = null;
+	protected $_absoluteCacheCssPath = null;
 	/**
 	 * Cached CSS file (absolute path)
 	 *
 	 * @var string
 	 */
-	private $_absoluteCachePhpPath = null;
+	protected $_absoluteCachePhpPath = null;
 	/**
 	 * Parent directory of cached CSS file (absolute path)
 	 *
 	 * @var string
 	 */
-	private $_absoluteCacheCssDir = null;
+	protected $_absoluteCacheCssDir = null;
 	/**
 	 * Media Query condition catalog
 	 * 
 	 * @var array
 	 */
-	private $_breakpointCatalog = array(
+	protected $_breakpointCatalog = array(
 		self::CONDITION_WIDTH			=> array(),
 		self::CONDITION_HEIGHT			=> array(),
 		self::CONDITION_RESOLUTION		=> array(),
@@ -79,31 +79,31 @@ class Css extends \Tollwerk\Squeezr {
 	 *
 	 * @var array
 	 */
-	private $_breakpointIndex = array();
+	protected $_breakpointIndex = array();
 	/**
 	 * CSS Blocks
 	 * 
 	 * @var array
 	 */
-	private $_blocks = array();
+	protected $_blocks = array();
 	/**
 	 * Line lengths
 	 * 
 	 * @var array
 	 */
-	private $_lines = array();
+	protected $_lines = array();
 	/**
 	 * Minification provider
 	 * 
 	 * @var \Tollwerk\Squeezr\Css\Minifier
 	 */
-	private $_minifier = null;
+	protected $_minifier = null;
 	/**
 	 * Breakpoint types
 	 *
 	 * @var array
 	 */
-	private static $_breakpointTypes = array(
+	protected static $_breakpointTypes = array(
 		self::CONDITION_WIDTH			=> 'width',
 		self::CONDITION_HEIGHT			=> 'height',
 		self::CONDITION_RESOLUTION		=> 'resolution',
@@ -155,43 +155,43 @@ class Css extends \Tollwerk\Squeezr {
 			// If there's already a PHP cache file of the requested CSS
 			if (@is_file($this->_absoluteCachePhpPath)) {
 				$cacheInstance			= include $this->_absoluteCachePhpPath;
-				
+			
 			// Else: Create a PHP cache file of the requested CSS
 			} else {
-				
+			
 				// Compile the cacheable CSS file PHP class
 				$cacheClassCode			= trim($this->_compileCacheClassCode());
-				
+			
 				// If the file should be cached: Write the PHP cache class file to disk
 				if ($cache && !@file_put_contents($this->_absoluteCachePhpPath, $cacheClassCode)) {
 					$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $this->_absoluteCachePhpPath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
-					
+						
 					// Disable caching alltogether
 					$cache				= false;
 				}
-				
+			
 				// Instanciate the cache class
 				$cacheInstance			= eval(substr($cacheClassCode, 5));
 			}
-			
+				
 			// If the PHP cache class could be instanciated ...
 			if (is_object($cacheInstance)) {
 				$returnCss				= strval($cacheInstance);
-				
+			
 				// Render the breakpoint specific CSS (if not available yet) and create a request specific symlink
 				$breakpointsCachePath	= $this->_absoluteCachePathBase.$cacheInstance->getMatchingBreakpoints().'.css';
-				
+			
 				// If caching is enabled ...
 				if ($cache) {
-				
+			
 					// If the breakpoint specific CSS cannot be created: Caching error
 					if (!@is_file($breakpointsCachePath) && !@file_put_contents($breakpointsCachePath, $returnCss)) {
 						$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $breakpointsCachePath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
-						
-					// Else if the breakpoint specific CSS cannot be symlinked: Caching error 
+			
+					// Else if the breakpoint specific CSS cannot be symlinked: Caching error
 					} elseif (!@symlink($breakpointsCachePath, $this->_absoluteCacheCssPath)) {
 						$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $this->_absoluteCacheCssPath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
-						
+			
 					// Else: Return the cached file
 					} else {
 						$returnCssFile	= $this->_absoluteCacheCssPath;
@@ -226,7 +226,7 @@ class Css extends \Tollwerk\Squeezr {
 	 * @param string $css							Requested CSS file (relative to document root)
 	 * @throws \Tollwerk\Squeezr\Exception			If the requested CSS file doesn't exist
 	 */
-	private function __construct($css) {
+	protected function __construct($css) {
 		$this->_relativeCssPath						= ltrim($css, DIRECTORY_SEPARATOR);
 		$this->_absoluteCssPath						= rtrim(SQUEEZR_DOCROOT, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$this->_relativeCssPath;
 		
@@ -249,7 +249,7 @@ class Css extends \Tollwerk\Squeezr {
 	 * @throws \Tollwerk\Squeezr\Exception			On any parser error
 	 * @todo joschi									Implement media query support for @import rules
 	 */
-	private function _parse() {
+	protected function _parse() {
 		$origCss									= '';
 		$length										= 0;
 		foreach (@file($this->_absoluteCssPath) as $line) {
@@ -386,7 +386,7 @@ class Css extends \Tollwerk\Squeezr {
 	 * @return string								Declaration block (starting at the beginning of the CSS text)
 	 * @throws \Tollwerk\Squeezr\Exception			If there is no declaration block starting or if it's unbalanced
 	 */
-	private function _consumeDeclarationBlock($css, $peek, $offset = 0, &$declarationBlockStart = 0) {
+	protected function _consumeDeclarationBlock($css, $peek, $offset = 0, &$declarationBlockStart = 0) {
 		$declarationBlockStart				= strpos($css, '{', $offset);
 		if ($declarationBlockStart === false) {
 			throw new \Tollwerk\Squeezr\Exception(sprintf(\Tollwerk\Squeezr\Exception::INVALID_DECLARATION_BLOCK_STR, $this->_peekToLine($peek)), \Tollwerk\Squeezr\Exception::INVALID_DECLARATION_BLOCK);
@@ -467,7 +467,7 @@ class Css extends \Tollwerk\Squeezr {
 	 * @param array $condition						Condition values
 	 * @return int									Breakpoint index
 	 */
-	private function _breakpointIndex($type, array $condition) {
+	protected function _breakpointIndex($type, array $condition) {
 		
 		// Normalize condition values
 		ksort($condition);
@@ -492,7 +492,7 @@ class Css extends \Tollwerk\Squeezr {
 	 * @param int $peek								Peek position
 	 * @return int									Line number
 	 */
-	private function _peekToLine($peek) {
+	protected function _peekToLine($peek) {
 		foreach ($this->_lines as $line => $length) {
 			if ($length >= $peek) {
 				break;
@@ -566,5 +566,5 @@ class Css extends \Tollwerk\Squeezr {
 	 */
 	public static function instance($css) {
 		return new self($css); 
-	} 
+	}
 }

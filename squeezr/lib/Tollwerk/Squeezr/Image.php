@@ -33,25 +33,25 @@ class Image extends \Tollwerk\Squeezr {
 	 *
 	 * @var string
 	 */
-	private $_relativeImagePath = null;
+	protected $_relativeImagePath = null;
 	/**
 	 * Requested image file (absolute path)
 	 *
 	 * @var string
 	 */
-	private $_absoluteImagePath = null;
+	protected $_absoluteImagePath = null;
 	/**
 	 * Cached image file (absolute path)
 	 *
 	 * @var string
 	 */
-	private $_absoluteCacheImagePath = null;
+	protected $_absoluteCacheImagePath = null;
 	/**
 	 * Parent directory of cached image file (absolute path)
 	 * 
 	 * @var string
 	 */
-	private $_absoluteCacheImageDir = null;
+	protected $_absoluteCacheImageDir = null;
 	
 	/************************************************************************************************
 	 * PUBLIC METHODS
@@ -82,101 +82,10 @@ class Image extends \Tollwerk\Squeezr {
 		
 		// Copy & resample original image
 		} else {
-		
-			// Determine the image dimensions
-			list($width, $height)		= getImageSize($this->_absoluteImagePath);
-		
-			// Determine the target width (considering the breakpoint)
-			$targetWidth				= intval(SQUEEZR_BREAKPOINT);
-			
-			// If the image image has to be downsampled at all
-			if ($width > $targetWidth) {
-		
-				// Prepare target parameters
-				$targetHeight			= round($targetWidth * $height / $width);
-				$targetImage	        = imagecreatetruecolor($targetWidth, $targetHeight);
-				$extension				= strtolower(pathinfo($this->_absoluteImagePath, PATHINFO_EXTENSION));
-		
-				// Create source image
-				switch ($extension) {
-					
-					// PNG files
-					case 'png':
-						$sourceImage	= @imagecreatefrompng($this->_absoluteImagePath);
-						imagealphablending($targetImage, false);
-						imagesavealpha($targetImage,true);
-						$transparent	= imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
-						imagefilledrectangle($targetImage, 0, 0, $targetWidth, $targetHeight, $transparent);
-						break;
-						
-					// GIF files
-					case 'gif':
-						$sourceImage	= @imagecreatefromgif($this->_absoluteImagePath);
-						break;
-						
-					// JPEG files
-					default:
-						$sourceImage	= @imagecreatefromjpeg($this->_absoluteImagePath);
-		
-						// Enable interlacing for progressive JPEGs
-						imageinterlace($targetImage, true);
-						break;
-				}
-		
-				// Resize & resample the image
-				imagecopyresampled($targetImage, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
-		
-				// Destroy the source file descriptor
-				imagedestroy($sourceImage);
-		
-				// Sharpen image if possible and requested
-				if (!!SQUEEZR_IMAGE_SHARPEN && function_exists('imageconvolution')) {
-					$intFinal			= $targetWidth * (750.0 / $width);
-					$intA     			= 52;
-					$intB     			= -0.27810650887573124;
-					$intC     			= .00047337278106508946;
-					$intRes   			= $intA + $intB * $intFinal + $intC * $intFinal * $intFinal;
-					$intSharpness		= max(round($intRes), 0);
-					$arrMatrix			= array(
-							array(-1, -2, -1),
-							array(-2, $intSharpness + 12, -2),
-							array(-1, -2, -1)
-					);
-					imageconvolution($targetImage, $arrMatrix, $intSharpness, 0);
-				}
-		
-				// Save target image
-				switch ($extension) {
-					case 'png':
-						$saved			= ImagePng($targetImage, $this->_absoluteCacheImagePath);
-						break;
-					case 'gif':
-						$saved			= ImageGif($targetImage, $this->_absoluteCacheImagePath);
-						break;
-					default:
-						$saved			= ImageJpeg($targetImage, $this->_absoluteCacheImagePath, min(100, max(1, intval(SQUEEZR_IMAGE_JPEG_QUALITY))));
-						break;
-				}
-		
-				// Destroy target image descriptor
-				imagedestroy($targetImage);
-		
-				// If target image could be created: Send it
-				if ($saved && @file_exists($this->_absoluteCacheImagePath)) {
-					$returnImage		= $this->_absoluteCacheImagePath;
-						
-				// Else: Error
-				} else {
-					$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_DOWNSAMPLE_CACHE_MSG, $this->_relativeImagePath), \Tollwerk\Squeezr\Exception::FAILED_DOWNSAMPLE_CACHE);
-				}
-		
-			// Else: No downsampling necessary, try to cache a copy of the original image to avoid subsequent squeeze attempts
-			} elseif (!@symlink($this->_absoluteImagePath, $this->_absoluteCacheImagePath) && (SQUEEZR_IMAGE_COPY_UNDERSIZED ? !@copy($this->_absoluteImagePath, $this->_absoluteCacheImagePath) : true)) {
-				$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_COPY_CACHE_MSG, $this->_relativeImagePath), \Tollwerk\Squeezr\Exception::FAILED_COPY_CACHE);
-		
-			// Else: Return target image
-			} else {
-				$returnImage			= $this->_absoluteCacheImagePath;
+			$errors						= array();
+			$returnImage				= $this->squeeze($this->_absoluteImagePath, $this->_absoluteCacheImagePath, SQUEEZR_BREAKPOINT, $errors);
+			foreach ($errors as $errNo => $errMsg) {
+				$this->_addErrorHeader(sprintf($errMsg, $this->_relativeImagePath), $errNo);
 			}
 		}
 		
@@ -196,7 +105,7 @@ class Image extends \Tollwerk\Squeezr {
 	 * @param string $image							Image file
 	 * @throws \Tollwerk\Squeezr\Exception			If the requested image file doesn't exist
 	 */
-	private function __construct($image) {
+	protected function __construct($image) {
 		$this->_relativeImagePath					= ltrim($image, DIRECTORY_SEPARATOR);
 		$this->_absoluteImagePath					= rtrim(SQUEEZR_DOCROOT, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$this->_relativeImagePath;
 		
@@ -224,5 +133,116 @@ class Image extends \Tollwerk\Squeezr {
 	 */
 	public static function instance($image) {
 		return new self($image);
+	}
+	
+
+	/**
+	 * Squeeze a particular source file
+	 *
+	 * @param string $source			Source file
+	 * @param string $target			Target file
+	 * @param string $breakpoint		Breakpoint
+	 * @param array $errors				Errors
+	 * @return string					Result file path
+	 */
+	public static function squeeze($source, $target, $breakpoint = SQUEEZR_BREAKPOINT, array &$errors = array()) {
+	
+		// Determine the image dimensions
+		list($width, $height)		= getImageSize($source);
+	
+		// Determine the target width (considering the breakpoint)
+		$targetWidth				= intval($breakpoint);
+	
+		// If the image image has to be downsampled at all
+		if ($width > $targetWidth) {
+	
+			// Prepare target parameters
+			$targetHeight			= round($targetWidth * $height / $width);
+			$targetImage	        = imagecreatetruecolor($targetWidth, $targetHeight);
+			$extension				= strtolower(pathinfo($source, PATHINFO_EXTENSION));
+	
+			// Create source image
+			switch ($extension) {
+					
+				// PNG files
+				case 'png':
+					$sourceImage	= @imagecreatefrompng($source);
+					imagealphablending($targetImage, false);
+					imagesavealpha($targetImage,true);
+					$transparent	= imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
+					imagefilledrectangle($targetImage, 0, 0, $targetWidth, $targetHeight, $transparent);
+					break;
+	
+					// GIF files
+				case 'gif':
+					$sourceImage	= @imagecreatefromgif($source);
+					break;
+	
+					// JPEG files
+				default:
+					$sourceImage	= @imagecreatefromjpeg($source);
+	
+					// Enable interlacing for progressive JPEGs
+					imageinterlace($targetImage, true);
+					break;
+			}
+	
+			// Resize & resample the image
+			imagecopyresampled($targetImage, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+	
+			// Destroy the source file descriptor
+			imagedestroy($sourceImage);
+	
+			// Sharpen image if possible and requested
+			if (!!SQUEEZR_IMAGE_SHARPEN && function_exists('imageconvolution')) {
+				$intFinal			= $targetWidth * (750.0 / $width);
+				$intA     			= 52;
+				$intB     			= -0.27810650887573124;
+				$intC     			= .00047337278106508946;
+				$intRes   			= $intA + $intB * $intFinal + $intC * $intFinal * $intFinal;
+				$intSharpness		= max(round($intRes), 0);
+				$arrMatrix			= array(
+						array(-1, -2, -1),
+						array(-2, $intSharpness + 12, -2),
+						array(-1, -2, -1)
+				);
+				imageconvolution($targetImage, $arrMatrix, $intSharpness, 0);
+			}
+	
+			// Save target image
+			switch ($extension) {
+				case 'png':
+					$saved			= ImagePng($targetImage, $target);
+					break;
+				case 'gif':
+					$saved			= ImageGif($targetImage, $target);
+					break;
+				default:
+					$saved			= ImageJpeg($targetImage, $target, min(100, max(1, intval(SQUEEZR_IMAGE_JPEG_QUALITY))));
+					break;
+			}
+	
+			// Destroy target image descriptor
+			imagedestroy($targetImage);
+	
+			// If target image could be created: Send it
+			if ($saved && @file_exists($target)) {
+				$returnImage		= $target;
+	
+				// Else: Error
+			} else {
+				$errors[\Tollwerk\Squeezr\Exception::FAILED_DOWNSAMPLE_CACHE] = \Tollwerk\Squeezr\Exception::FAILED_DOWNSAMPLE_CACHE_MSG;
+			}
+	
+			// Else: No downsampling necessary, try to cache a copy of the original image to avoid subsequent squeeze attempts
+		} elseif (!@symlink($source, $target) && (SQUEEZR_IMAGE_COPY_UNDERSIZED ? !@copy($source, $target) : true)) {
+			$errors[\Tollwerk\Squeezr\Exception::FAILED_COPY_CACHE] = \Tollwerk\Squeezr\Exception::FAILED_COPY_CACHE_MSG;
+	
+			// Else: Return target image
+		} else {
+			$returnImage			= $target;
+		}
+	
+		return $returnImage;
 	}
 }

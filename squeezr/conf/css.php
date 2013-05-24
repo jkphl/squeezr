@@ -8,7 +8,7 @@
  * @package		squeezr
  * @author		Joschi Kuphal <joschi@kuphal.net>
  * @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
- * @link		http://squeezr.net
+ * @link		http://squeezr.it
  * @github		https://github.com/jkphl/squeezr
  * @twitter		@squeezr
  * @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License

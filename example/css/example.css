@@ -22,9 +22,3 @@ ol {
 	padding: 1em 3.5em;
 	white-space: pre-wrap;
 }
-
-@media only screen and (min-width: 60em) and (min-device-width: 1024px), (max-width: 80em), (min-height: 20em) {
-	body {
-		background-color: #BAAD44; 
-	}
-}

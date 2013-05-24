@@ -10,7 +10,7 @@
  * @package		squeezr
  * @author		Joschi Kuphal <joschi@kuphal.net>
  * @copyright	Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
- * @link		http://squeezr.net
+ * @link		http://squeezr.it
  * @github		https://github.com/jkphl/squeezr
  * @twitter		@squeezr
  * @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
@@ -25,25 +25,9 @@ header('Content-Type: text/css');
 $cookie			= empty($_COOKIE['squeezr_racecondition']) ? null : $_COOKIE['squeezr_racecondition'];
 $valid			= (empty($_GET['random']) ? false : $_GET['random']) === $cookie;
 
-?>body {
-	font-family: Arial, Helvetica, sans-serif;
-	line-height: 1.6;
-	padding: 0;
-}
-section {
-	margin: 2em;
-}
-img {
-	max-width: 100%;
-	border: 1px solid #ccc;
-}
-p.css-check, pre {
-	padding: 1em;
-	border: 1px solid #ccc;
-	background-color: #eee;
-	white-space: pre-wrap;
-}
-<?php if ($valid): ?>
+echo file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'example.css')."\n";
+
+if ($valid): ?>
 p.success {
 	background-color: #cfc;
 }

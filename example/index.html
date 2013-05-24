@@ -6,7 +6,7 @@ squeezr example page
 @package		squeezr
 @author			Joschi Kuphal <joschi@kuphal.net>
 @copyright		Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
-@link			http://squeezr.net
+@link			http://squeezr.it
 @github			https://github.com/jkphl/squeezr
 @twitter		@squeezr
 @license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
@@ -18,40 +18,20 @@ squeezr example page
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1" />
-		<title>squeezr | Example page</title>
+		<title>squeezr | device-aware adaptive images with squeezr</title>
 		<script type="text/javascript" id="squeezr" data-breakpoints-images="760,960,1024,1440,2000">(function(a){function h(){for(var f,a=0,b=d.cookie.split(";"),c=/^\ssqueezr\.([^=]+)=(.*?)\s*$/,e={};b.length>a;++a)(f=b[a].match(c))&&(e[f[1]]=f[2]);return e}function i(a){a=Math.max(parseFloat(a||1,10),.01);var c=d.documentElement,f=function(){var a=d.createElement("div"),b={width:"1px",height:"1px",display:"inline-block"};for(var c in b)a.style[c]=b[c];return a},g=d.createElement("div"),h=g.appendChild(f());g.appendChild(f()),c.appendChild(g);for(var i=g.clientHeight,j=Math.floor(e/i),k=j/2,l=0,m=[j];1e3>l++&&(Math.abs(k)>a||g.clientHeight>i);)j+=k,h.style.width=j+"em",k/=(g.clientHeight>i?1:-1)*(k>0?-2:2),m.push(j);return c.removeChild(g),j}function j(a){for(var g,c=0,d=(a||"").split(","),e=/(\d+(?:\.\d+)?)(px)?/i,f=[];d.length>c;++c)(g=d[c].match(e))&&f.push(parseFloat(g[1],10));return f.sort(function(a,b){return a-b})}function k(){return"devicePixelRatio"in a?a.devicePixelRatio:"deviceXDPI"in a&&"logicalXDPI"in a?a.deviceXDPI/a.logicalXDPI:1}if(navigator.cookieEnabled)for(var b="squeezr",c=";path=/",d=document,e=a.innerWidth,f=screen.width,g=screen.height,m=0,n=d.getElementsByTagName("script");n.length>m;++m)if(n[m].id==b){var o=k(),p="-";if(d.cookie=b+".screen="+f+"x"+g+"@"+o+c,!n[m].getAttribute("data-disable-images")){var q=j(n[m].getAttribute("data-breakpoints-images")),r=Math.max(f,g),s=null;do{if(r>(s=q.pop()))break;p=s*o+"px"}while(q.length)}d.cookie=b+".images="+p+c;var t=h(),u=t.css||"-";if(!("css"in t&&t.css&&"-"!=t.css||n[m].getAttribute("data-disable-css"))){var v=e/i(parseFloat(n[m].getAttribute("data-em-precision")||.5,10)/100);u=f+"x"+g+"@"+Math.round(10*v)/10}d.cookie=b+".css="+u+c;break}})(this);</script>
 		<link rel="stylesheet" type="text/css" href="css/example.css" media="all" />
 	</head>
 	<body>
 		<section>
-			<h1>Device-aware adaptive images with squeezr</h1>
-			<p>The image below adapts to the <strong>screen dimensions</strong> (not: the window dimensions!) of the device used to view this page. The longer screen side length will be used for breakpoint calculation (taking display density into account as well). These are the cookies sent to the server:</p>
-			<pre><script type="text/javascript">
-				var c	= document.cookie.split('squeezr'),
-				sc		= [];
-				c.shift();
-				while(c.length) {
-					sc.push('squeezr' + c.shift().split(';').shift());
-				};
-				document.write(sc.join('; '));
-			</script></pre>
+		    <h1>squeezr | device-aware adaptive images with squeezr</h1>
+		    <p>This is an example page for squeezr. As long as squeezr is active, the image below should adapt to the <strong>screen dimensions</strong> (not: the window dimensions!) of the device used to view this page. The longer screen side length will be used for breakpoint calculation (taking display density into account as well). These are the relevant cookies sent to the server:</p>
+			<pre><script type="text/javascript">var c = document.cookie.split('squeezr'), sc = []; c.shift(); while(c.length) sc.push('squeezr' + c.shift().split(';').shift()); document.write(sc.join('; '));</script></pre>
 			<p>These are the breakpoints defined for this page (sorted in ascending order):</p>
-			<script type="text/javascript">
-				for (var s = 0, ss = document.getElementsByTagName('script'), sl = ss.length, sn = /squeezr\.(min\.)?js$/; s < sl; ++s) {
-					if (sn.test(ss[s].src)) {
-						for (var b = 0, bs = (ss[s].getAttribute('data-breakpoints-images') || '').split(','), bl = bs.length, d = /(\d+(?:\.\d+)?)(px)?/i, br = [], m, v; b < bl; ++b) {
-							if (m = bs[b].match(d)) {
-								br.push(parseFloat(m[1], 10));
-							}
-						}
-						br.sort(function(a, b){ return a - b; });
-						document.write('<ol><li>' + br.join('px</li><li>') + 'px</li></ol>');
-						break;
-					}
-				}	
-			</script>
-			<p>The <em>squeezr.images</em> value (<em><script type="text/javascript">document.write(document.cookie.split('squeezr.images=').pop().split(';').shift());</script></em>) limits the maximum image side length returned by the server.</p>
+			<script type="text/javascript">var ss = document.getElementById('squeezr'); for (var b = 0, bs = (ss.getAttribute('data-breakpoints-images') || '').split(','), bl = bs.length, d = /(\d+(?:\.\d+)?)(px)?/i, br = [], m, v; b < bl; ++b) { if (m = bs[b].match(d)) br.push(parseFloat(m[1], 10)); } br.sort(function(a, b){ return a - b; }); document.write('<ol><li>' + br.join('px</li><li>') + 'px</li></ol>');</script>
+			<p>The <em>squeezr.images</em> value (<em><script type="text/javascript">document.write(document.cookie.split('squeezr.images=').pop().split(';').shift());</script></em>) limits the maximum image side length returned by the server. Please be aware that your browser might be affected by the <a href="race-condition.php">cookie race condition problem</a>, so the first request of this page might not make the image being downscaled properly.</p>
 			<p><img src="img/example.jpg"/></p>
+		    <p>Furthermore, also the <a href="css/example.css" target="_blank">CSS stylesheet of this page</a> should be processed by squeezr. However, it's really small and doesn't use media queries, so a byte saving can only be achieved by means of minification. </p>
 			<p><a href="index.html">Reload this page</a></p>
 		</section>
 	</body>

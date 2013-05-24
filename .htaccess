@@ -7,13 +7,13 @@
 # Instead you will have to integrate the following rules thoroughly into your setup. You have been warned. ;)
 #
 # @package        squeezr
-# @author        Joschi Kuphal <joschi@kuphal.net>
-# @copyright    Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
-# @link            http://squeezr.net
-# @github        https://github.com/jkphl/squeezr
+# @author         Joschi Kuphal <joschi@kuphal.net>
+# @copyright      Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+# @link           http://squeezr.it
+# @github         https://github.com/jkphl/squeezr
 # @twitter        @squeezr
 # @license        http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
-# @since        1.0b
+# @since          1.0b
 # @version        1.0b
 #############################################################################################################
 
@@ -24,14 +24,6 @@
     # Start the rewrite engine
     RewriteEngine On
     RewriteBase /
-    
-###########################################################################
-# Redirect to main domain
-###########################################################################
-RewriteCond %{HTTP_HOST} !^squeezr.it
-RewriteCond %{HTTP_HOST} !^squeezr.zeniba
-RewriteCond %{HTTP_HOST} !^squeezr.tollwerk.de
-RewriteRule ^(.*)$ http://squeezr.it/$1 [L,R=301]
     
 #############################################################################################################
 # REDIRECT ANY DIRECT IMAGE REQUEST TO A CACHED VERSION

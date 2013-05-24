@@ -9,19 +9,11 @@ multitude of web enabled devices. It can help you preserve your visitor's bandwi
 any remarkable change to your source code.
 As a means of [responsive web design](http://www.abookapart.com/products/responsive-web-design)
 it is to be used in combination with [fluid image](http://unstoppablerobotninja.com/entry/fluid-images/) techniques.
-
-Main objectives
----------------
-
-*	*squeezr* aims to be a **modern solution** and doesn't care much about being specifically compatible
-	with outdated server environments (see [requirements](#requirements)).
-*	It was the overall goal to leverage the **best possible performance** in every stage of processing.
-	Some effort has been made to deliberately choose and combine the techniques involved in *squeezr*.
 	
 What squeezr does
 -----------------
 
-Currently *squeezr* consists of two "engines" that can be used independently of each other:
+Currently *squeezr* consists of two engines that can be used independently of each other:
 
 *	The **image engine** automatically resizes images so that they don't exceed your
 	visitor's screen size. The resulting image variants get cached to disk for optimized follow-up
@@ -38,7 +30,23 @@ Currently *squeezr* consists of two "engines" that can be used independently of 
 	further.
 
 You can find a complete description of *squeezr's* functions and configuration options at
-[http://squeezr.net](http://squeezr.net). 
+[http://squeezr.it](http://squeezr.it). 
+
+Installation
+---------------
+
+1.	Download the latest version from here or from the [*squeezr* website](http://squeezr.it) and
+	unpack the archive locally on your computer.
+2.	Customize the 3 configuration files (common / global settings file and one for each of the engines)
+	at `/squeezr/conf/*` to your needs if necessary or desired.
+3.	Upload the `/squeezr` directory to your website root and ensure that the webserver
+	has write privileges for this directory.
+4.	Upload the included `.htaccess` file to your website root **only in case you don't already have a file named alike**.
+	Otherwise, thouroughly incorporate the contained rewrite rules into your existing `.htaccess`.
+5.	Include the client JavaScript into your HTML pages. Please see the [*squeezr* website](http://squeezr.it#client)
+	for details on this. That's all – you're done now and *squeezr* should be up and running.
+
+Please visit the [*squeezr* website](http://squeezr.it) for further instructions and configuration options.
 
 Requirements
 ------------

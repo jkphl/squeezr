@@ -25,6 +25,14 @@
     RewriteEngine On
     RewriteBase /
     
+###########################################################################
+# Redirect to main domain
+###########################################################################
+RewriteCond %{HTTP_HOST} !^squeezr.it
+RewriteCond %{HTTP_HOST} !^squeezr.zeniba
+RewriteCond %{HTTP_HOST} !^squeezr.tollwerk.de
+RewriteRule ^(.*)$ http://squeezr.it/$1 [L,R=301]
+    
 #############################################################################################################
 # REDIRECT ANY DIRECT IMAGE REQUEST TO A CACHED VERSION
 #

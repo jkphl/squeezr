@@ -45,7 +45,7 @@ abstract class Squeezr {
 	 * @param int $errorNumber			Error number
 	 * @return void
 	 */
-	private function _addErrorHeader($error, $errorNumber) {
+	protected function _addErrorHeader($error, $errorNumber) {
 		$this->_headers['X-Squeezr-Error']			= $error;
 		$this->_headers['X-Squeezr-Errno']			= $errorNumber;
 	}

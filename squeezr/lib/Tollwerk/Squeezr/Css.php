@@ -141,63 +141,72 @@ class Css extends \Tollwerk\Squeezr {
 		$returnCssFile					= $this->_absoluteCssPath;
 		$returnCss						= '';
 		
-		// If the cache directory doesn't exist or is not writable: Error
-		if ((!@is_dir($this->_absoluteCacheCssDir) && !@mkdir($this->_absoluteCacheCssDir, 0777, true)) || !@is_writable($this->_absoluteCacheCssDir)) {
-			$this->_addErrorHeader(\Tollwerk\Squeezr\Exception::INVALID_TARGET_CACHE_DIRECTORY_MSG, \Tollwerk\Squeezr\Exception::INVALID_TARGET_CACHE_DIRECTORY);
+		// Try to process this CSS file
+		try {
 		
-		// If the squeezr screen cookie is not available or invalid
-		} elseif (empty($_COOKIE['squeezr_css']) || !preg_match("%^(\d+)x(\d+)\@(\d+(?:\.\d+)?)$%", $_COOKIE['squeezr_css'], $squeezr)) {
-			$this->_addErrorHeader(\Tollwerk\Squeezr\Exception::MISSING_METRICS_COOKIE_MSG, \Tollwerk\Squeezr\Exception::MISSING_METRICS_COOKIE);
-		
-		// Else: Compile and send the breakpoint specific CSS
-		} else {
-		
-			// If there's already a PHP cache file of the requested CSS
-			if (@is_file($this->_absoluteCachePhpPath)) {
-				$cacheInstance			= include $this->_absoluteCachePhpPath;
+			// If the cache directory doesn't exist or is not writable: Error
+			if ((!@is_dir($this->_absoluteCacheCssDir) && !@mkdir($this->_absoluteCacheCssDir, 0777, true)) || !@is_writable($this->_absoluteCacheCssDir)) {
+				$this->_addErrorHeader(\Tollwerk\Squeezr\Exception::INVALID_TARGET_CACHE_DIRECTORY_MSG, \Tollwerk\Squeezr\Exception::INVALID_TARGET_CACHE_DIRECTORY);
 			
-			// Else: Create a PHP cache file of the requested CSS
+			// If the squeezr screen cookie is not available or invalid
+			} elseif (empty($_COOKIE['squeezr_css']) || !preg_match("%^(\d+)x(\d+)\@(\d+(?:\.\d+)?)$%", $_COOKIE['squeezr_css'], $squeezr)) {
+				$this->_addErrorHeader(\Tollwerk\Squeezr\Exception::MISSING_METRICS_COOKIE_MSG, \Tollwerk\Squeezr\Exception::MISSING_METRICS_COOKIE);
+			
+			// Else: Compile and send the breakpoint specific CSS
 			} else {
 			
-				// Compile the cacheable CSS file PHP class
-				$cacheClassCode			= trim($this->_compileCacheClassCode());
-			
-				// If the file should be cached: Write the PHP cache class file to disk
-				if ($cache && !@file_put_contents($this->_absoluteCachePhpPath, $cacheClassCode)) {
-					$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $this->_absoluteCachePhpPath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
-						
-					// Disable caching alltogether
-					$cache				= false;
-				}
-			
-				// Instanciate the cache class
-				$cacheInstance			= eval(substr($cacheClassCode, 5));
-			}
+				// If there's already a PHP cache file of the requested CSS
+				if (@is_file($this->_absoluteCachePhpPath)) {
+					$cacheInstance			= include $this->_absoluteCachePhpPath;
 				
-			// If the PHP cache class could be instanciated ...
-			if (is_object($cacheInstance)) {
-				$returnCss				= strval($cacheInstance);
-			
-				// Render the breakpoint specific CSS (if not available yet) and create a request specific symlink
-				$breakpointsCachePath	= $this->_absoluteCachePathBase.$cacheInstance->getMatchingBreakpoints().'.css';
-			
-				// If caching is enabled ...
-				if ($cache) {
-			
-					// If the breakpoint specific CSS cannot be created: Caching error
-					if (!@is_file($breakpointsCachePath) && !@file_put_contents($breakpointsCachePath, $returnCss)) {
-						$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $breakpointsCachePath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
-			
-					// Else if the breakpoint specific CSS cannot be symlinked: Caching error
-					} elseif (!@symlink($breakpointsCachePath, $this->_absoluteCacheCssPath)) {
-						$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $this->_absoluteCacheCssPath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
-			
-					// Else: Return the cached file
-					} else {
-						$returnCssFile	= $this->_absoluteCacheCssPath;
+				// Else: Create a PHP cache file of the requested CSS
+				} else {
+				
+					// Compile the cacheable CSS file PHP class
+					$cacheClassCode		= trim($this->_compileCacheClassCode());
+				
+					// If the file should be cached: Write the PHP cache class file to disk
+					if ($cache && !@file_put_contents($this->_absoluteCachePhpPath, $cacheClassCode)) {
+						$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $this->_absoluteCachePhpPath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
+							
+						// Disable caching alltogether
+						$cache				= false;
+					}
+				
+					// Instanciate the cache class
+					$cacheInstance			= eval(substr($cacheClassCode, 5));
+				}
+					
+				// If the PHP cache class could be instanciated ...
+				if (is_object($cacheInstance)) {
+					$returnCss				= strval($cacheInstance);
+				
+					// Render the breakpoint specific CSS (if not available yet) and create a request specific symlink
+					$breakpointsCachePath	= $this->_absoluteCachePathBase.$cacheInstance->getMatchingBreakpoints().'.css';
+				
+					// If caching is enabled ...
+					if ($cache) {
+				
+						// If the breakpoint specific CSS cannot be created: Caching error
+						if (!@is_file($breakpointsCachePath) && !@file_put_contents($breakpointsCachePath, $returnCss)) {
+							$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $breakpointsCachePath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
+				
+						// Else if the breakpoint specific CSS cannot be symlinked: Caching error
+						} elseif (!@symlink($breakpointsCachePath, $this->_absoluteCacheCssPath)) {
+							$this->_addErrorHeader(sprintf(\Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE_STR, $this->_absoluteCacheCssPath), \Tollwerk\Squeezr\Exception::FAILED_WRITING_CACHE_FILE);
+				
+						// Else: Return the cached file
+						} else {
+							$returnCssFile	= $this->_absoluteCacheCssPath;
+						}
 					}
 				}
 			}
+			
+		// On errors
+		} catch (\Tollwerk\Squeezr\Exception $e) {
+			$this->_addErrorHeader($e->getMessage(), $e->getCode());
+			$returnCssFile					= $this->_absoluteCssPath;
 		}
 		
 		// If the CSS has been cached to a file
@@ -328,8 +337,9 @@ class Css extends \Tollwerk\Squeezr {
 						
 						// Find the next line break or semicolon
 						if (preg_match("%[\r\n\;]%", $css, $delimiter, PREG_OFFSET_CAPTURE, strlen($atRule[1]))) {
-							print_r($delimiter);
-							exit;
+							$block					.=
+							$declarationBlock		= substr($css, 0, $delimiter[0][1] + 1);
+							$peek					+= strlen($declarationBlock);
 							
 						// Else: this must be the end of the data
 						} else {

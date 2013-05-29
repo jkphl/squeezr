@@ -109,6 +109,16 @@ class Css extends \Tollwerk\Squeezr {
 		self::CONDITION_RESOLUTION		=> 'resolution',
 	);
 	/**
+	 * Import at-rule patterns
+	 * 
+	 * @var array
+	 */
+	protected static $_importPatterns = array(
+		'url('							=> '%^(url\((\042|\047)?([^\)]+)(?(2)\\2)\))\s+(.+)$%',
+		'"'								=> '%^(\042([^\042]+)\042)\s+(.+)$%',
+		"'"								=> '%^(\047([^\047]+)\047)\s+(.+)$%',
+	);
+	/**
 	 * Width condition
 	 *
 	 * @var unknown
@@ -309,7 +319,6 @@ class Css extends \Tollwerk\Squeezr {
 						$peek						+= strlen($declarationBlock);
 						$breakpoints				= $this->_breakpoints(substr($css, 6, $declarationBlockStart - 6));
 						
-						
 						// If the @media query is squeezable
 						if (is_array($breakpoints)) {
 							
@@ -329,6 +338,39 @@ class Css extends \Tollwerk\Squeezr {
 						
 					// @import rule: May contain media query, should be implemented
 					case 'import':
+						
+						// Find the next line break or semicolon
+						if (preg_match("%[\r\n\;]%", $css, $delimiter, PREG_OFFSET_CAPTURE, strlen($atRule[1]))) {
+							$declarationBlock		= substr($css, 0, $delimiter[0][1] + 1);
+								
+						// Else: this must be the end of the data
+						} else {
+							$declarationBlock		= $css;
+						}
+						
+						$peek						+= strlen($declarationBlock);
+						
+						// Examine the import rule
+						$import						= trim(substr($declarationBlock, 7), ' ;');
+						foreach (self::$_importPatterns as $start => $pattern) {
+							if (!strncmp($start, $import, strlen($start)) && preg_match($pattern, $import, $importMediaQuery)) {
+								$breakpoints		= $this->_breakpoints($importMediaQuery[4]);
+								
+								// If the @import rule has a squeezable media query part
+								if (is_array($breakpoints)) {
+										
+									// If there's already block data to be registered
+									if (strlen($block)) {
+										$this->_registerBlock($block);
+									}
+										
+									$this->_registerBlock($declarationBlock, $breakpoints);
+									break 2;
+								}
+							}
+						}
+						
+						$block						.= $declarationBlock;
 						break;
 						
 					// Single line @-rules (except @import)

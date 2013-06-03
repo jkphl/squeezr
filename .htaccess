@@ -32,8 +32,8 @@
 #
 #    RewriteCond %{REQUEST_URI} !path/to/some/file-or-directory
 #
-# Please refer to the mod_rewrite documentation at http://httpd.apache.org/docs/2.0/mod/mod_rewrite.html for
-# further possibilities and instructions,
+# Please refer to the mod_rewrite documentation at http://httpd.apache.org/docs/2.2/mod/mod_rewrite.html for
+# further possibilities and instructions.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RewriteCond %{REQUEST_FILENAME} -f
     RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px

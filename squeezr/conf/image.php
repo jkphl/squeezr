@@ -43,7 +43,18 @@ define('SQUEEZR_IMAGE_JPEG_QUALITY', 80);
  *
  * @var boolean
 */
-define('SQUEEZR_IMAGE_SHARPEN', true);
+define('SQUEEZR_IMAGE_SHARPEN', false);
+
+/**
+ * Force image sharpening
+ * 
+ * In some special cases image sharpening is suspended, e.g. when downscaling 8-bit PNG images, as
+ * sharpening significantly worsens image quality in these cases. Activate this option to force
+ * sharpening anyway.
+ *
+ * @var boolean
+*/
+define('SQUEEZR_IMAGE_FORCE_SHARPEN', false);
 
 /**
  * Copy undersized images
@@ -56,3 +67,44 @@ define('SQUEEZR_IMAGE_SHARPEN', true);
  * @var boolean
  */
 define('SQUEEZR_IMAGE_COPY_UNDERSIZED', false);
+
+/**
+ * Alpha transparency threshold
+ *
+ * This value determines as to which opacity a image pixel is considered transparent. Enter a floating
+ * point value between 0.0 and 1.0 here. 0.0 means "zero tolerance", so only pixels that are truly completely
+ * transparent are considered as such. 1 means "every pixel is transparent" (which doesn't make sense
+ * of course). A reasonable value could be e.g. 0.1;
+ *
+ * @var string
+ */
+define('SQUEEZR_IMAGE_TRANSPARENCY_THRESHOLD', 0.1);
+
+/**
+ * 8-bit PNG quantizer
+ *
+ * When downscaling 8-bit PNG images, the resulting images have to be re-quantized. squeezr comes with
+ * some internal quantizing logic (based on GD), but the results aren't that good. If available, you
+ * should use an external quantizer like "pngquant" or "pngnq". The following quantizer options are
+ * available:
+ * 
+ * - FALSE: Disable re-quantizing altogether (potentially resulting in huge PNG files)
+ * - "internal", NULL or empty string: Internal quantizer (GD based)
+ * - "pngquant": pngquant command line quantizer (must be available on the system)
+ * - "pngnq": pngnq command line quantizer (must be available on the system)
+ * 
+ * @var string
+ */
+define('SQUEEZR_IMAGE_PNG_QUANTIZER', 'internal');
+
+/**
+ * External 8-bit PNG quantizer speed
+ * 
+ * If an external quantizer is used (like "pngquant" or "pngnq"), you can control the quality the
+ * resulting PNG files will have. Higher quality means longer processing time. Provider an integer
+ * value between 1 and 10 here, with 1 meaning highest quality / slowest processing and 10 meaning
+ * poorest quality, but fastest processing.  
+ * 
+ * @var int
+ */
+define('SQUEEZR_IMAGE_PNG_QUANTIZER_SPEED', 5);

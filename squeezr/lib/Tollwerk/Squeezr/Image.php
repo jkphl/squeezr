@@ -52,6 +52,35 @@ class Image extends \Tollwerk\Squeezr {
 	 * @var string
 	 */
 	protected $_absoluteCacheImageDir = null;
+	/**
+	 * Valid quantizers
+	 * 
+	 * @var array
+	 */
+	protected static $_quantizers = array(
+		self::QUANTIZER_INTERNAL	=> false,
+		self::QUANTIZER_PNGQUANT	=> '`which pngquant` --force --transbug --ext ".png" --speed %s %s',
+		self::QUANTIZER_PNGNQ		=> '`which pngnq` -f -e ".png" -s %s %s',
+	);
+	/**
+	 * Internal quantizer (GD based)
+	 * 
+	 * @var string
+	 */
+	const QUANTIZER_INTERNAL = 'internal';
+	/**
+	 * pngquant quantizer
+	 * 
+	 * @var string
+	 */
+	const QUANTIZER_PNGQUANT = 'pngquant';
+	/**
+	 * pngnq quantizer
+	 * 
+	 * @var string
+	 */
+	const QUANTIZER_PNGNQ = 'pngnq';
+	
 	
 	/************************************************************************************************
 	 * PUBLIC METHODS
@@ -144,92 +173,39 @@ class Image extends \Tollwerk\Squeezr {
 	 * @param string $breakpoint		Breakpoint
 	 * @param array $errors				Errors
 	 * @return string					Result file path
+	 * @link							http://www.idux.com/2011/02/27/what-are-index-and-alpha-transparency/
 	 */
 	public static function squeeze($source, $target, $breakpoint = SQUEEZR_BREAKPOINT, array &$errors = array()) {
 	
 		// Determine the image dimensions
-		list($width, $height)		= getImageSize($source);
+		list($width, $height, $type)	= getImageSize($source);
 	
 		// Determine the target width (considering the breakpoint)
-		$targetWidth				= intval($breakpoint);
+		$targetWidth					= intval($breakpoint);
 	
 		// If the image image has to be downsampled at all
 		if ($width > $targetWidth) {
 	
-			// Prepare target parameters
-			$targetHeight			= round($targetWidth * $height / $width);
-			$targetImage	        = imagecreatetruecolor($targetWidth, $targetHeight);
-			$extension				= strtolower(pathinfo($source, PATHINFO_EXTENSION));
-	
-			// Create source image
-			switch ($extension) {
-					
-				// PNG files
-				case 'png':
-					$sourceImage	= @imagecreatefrompng($source);
-					imagealphablending($targetImage, false);
-					imagesavealpha($targetImage,true);
-					$transparent	= imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
-					imagefilledrectangle($targetImage, 0, 0, $targetWidth, $targetHeight, $transparent);
+			// Prepare basic target parameters
+			$targetHeight				= round($targetWidth * $height / $width);
+			
+			switch ($type) {
+				case IMAGETYPE_PNG:
+					$saved				= self::_downscalePng($source, $width, $height, $target, $targetWidth, $targetHeight);
 					break;
-	
-					// GIF files
-				case 'gif':
-					$sourceImage	= @imagecreatefromgif($source);
+				case IMAGETYPE_JPEG:
+					$saved				= self::_downscaleJpeg($source, $width, $height, $target, $targetWidth, $targetHeight);
 					break;
-	
-					// JPEG files
-				default:
-					$sourceImage	= @imagecreatefromjpeg($source);
-	
-					// Enable interlacing for progressive JPEGs
-					imageinterlace($targetImage, true);
+				case IMAGETYPE_GIF:
+					$saved				= self::_downscaleGif($source, $width, $height, $target, $targetWidth, $targetHeight);
 					break;
 			}
-	
-			// Resize & resample the image
-			imagecopyresampled($targetImage, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
-	
-			// Destroy the source file descriptor
-			imagedestroy($sourceImage);
-	
-			// Sharpen image if possible and requested
-			if (!!SQUEEZR_IMAGE_SHARPEN && function_exists('imageconvolution')) {
-				$intFinal			= $targetWidth * (750.0 / $width);
-				$intA     			= 52;
-				$intB     			= -0.27810650887573124;
-				$intC     			= .00047337278106508946;
-				$intRes   			= $intA + $intB * $intFinal + $intC * $intFinal * $intFinal;
-				$intSharpness		= max(round($intRes), 0);
-				$arrMatrix			= array(
-						array(-1, -2, -1),
-						array(-2, $intSharpness + 12, -2),
-						array(-1, -2, -1)
-				);
-				imageconvolution($targetImage, $arrMatrix, $intSharpness, 0);
-			}
-	
-			// Save target image
-			switch ($extension) {
-				case 'png':
-					$saved			= ImagePng($targetImage, $target);
-					break;
-				case 'gif':
-					$saved			= ImageGif($targetImage, $target);
-					break;
-				default:
-					$saved			= ImageJpeg($targetImage, $target, min(100, max(1, intval(SQUEEZR_IMAGE_JPEG_QUALITY))));
-					break;
-			}
-	
-			// Destroy target image descriptor
-			imagedestroy($targetImage);
 	
 			// If target image could be created: Send it
 			if ($saved && @file_exists($target)) {
 				$returnImage		= $target;
 	
-				// Else: Error
+			// Else: Error
 			} else {
 				$errors[\Tollwerk\Squeezr\Exception::FAILED_DOWNSAMPLE_CACHE] = \Tollwerk\Squeezr\Exception::FAILED_DOWNSAMPLE_CACHE_MSG;
 			}
@@ -244,5 +220,257 @@ class Image extends \Tollwerk\Squeezr {
 		}
 	
 		return $returnImage;
+	}
+	
+	/**
+	 * Downscale a PNG image
+	 *
+	 * @param string $source			Source image path
+	 * @param int $width				Source image width
+	 * @param int $height				Source image height
+	 * @param string $target			Target image path
+	 * @param int $targetWidth			Target image width
+	 * @param int $targetHeight			Target image height
+	 * @return boolean					Downscaled image has been saved
+	 * @link							http://en.wikipedia.org/wiki/Portable_Network_Graphics#Color_depth
+	 * @link							http://perplexed.co.uk/1814_png_optimization_with_gd_library.htm
+	 */
+	protected static function _downscalePng($source, $width, $height, $target, $targetWidth, $targetHeight) {
+		$targetImage	        		= imagecreatetruecolor($targetWidth, $targetHeight);
+		
+		// Determine active quantizer
+		if (SQUEEZR_IMAGE_PNG_QUANTIZER === false) {
+			$quantizer					= false;
+		} else {
+			$quantizer					= strtolower(trim(SQUEEZR_IMAGE_PNG_QUANTIZER));
+			$quantizer					= ($quantizer && array_key_exists($quantizer, self::$_quantizers)) ? $quantizer : self::QUANTIZER_INTERNAL;
+		}
+		
+		/**
+		 * Determine the PNG type
+		 *
+		 * 0 - Grayscale
+		 * 2 - RGB
+		 * 3 - RGB with palette (= indexed)
+		 * 4 - Grayscale + alpha
+		 * 6 - RGB + alpha
+		 */
+		$sourceType						= ord(@file_get_contents($source, false, null, 25, 1));
+		$sourceImage					= @imagecreatefrompng($source);
+		$sourceIndexed 					= !!($sourceType & 1);
+		$sourceAlpha					= !!($sourceType & 4);
+		$sourceTransparentIndex			= imagecolortransparent($sourceImage);
+		$sourceIndexTransparency		= $sourceTransparentIndex >= 0;
+		$sourceTransparentColor			= $sourceIndexTransparency ? imagecolorsforindex($sourceImage, $sourceTransparentIndex) : null;
+		$sourceColors					= imagecolorstotal($sourceImage);
+
+		// Determine if the resulting image should be quantized
+		$quantize						= $quantizer && ($sourceIndexed || (($sourceColors > 0) && ($sourceColors <= 256)));
+		
+		// Support transparency on the target image if necessary
+		if ($sourceIndexTransparency || $sourceAlpha) {
+			self::_enableTranparency($targetImage, $sourceTransparentColor);
+		}
+		
+		// If the resulting image should be quantized
+		if ($quantize) {
+			
+			// If an external quantizer is available: Convert the source image to a TrueColor before downsampling
+			if ($quantize && ($quantizer != self::QUANTIZER_INTERNAL)) {
+				$tmpSourceImage				= imagecreatetruecolor($width, $height);
+					
+				// Enable transparency if necessary (index or alpha channel)
+				if ($sourceIndexTransparency || $sourceAlpha) {
+					self::_enableTranparency($tmpSourceImage, $sourceTransparentColor);
+				}
+					
+				imagecopy($tmpSourceImage, $sourceImage, 0, 0, 0, 0, $width, $height);
+				imagedestroy($sourceImage);
+				$sourceImage				= $tmpSourceImage;
+				unset($tmpSourceImage);
+					
+			// Else: Use internal quantizer (convert to palette before downsampling)
+			} elseif ($sourceIndexTransparency || $sourceAlpha) {
+				imagetruecolortopalette($targetImage, true, $sourceColors);
+			}
+		}
+		
+// 		trigger_error(var_export(array(
+// 			'type'						=> $sourceType,
+// 			'indexed'					=> $sourceIndexed,
+// 			'indextransp'				=> $sourceIndexTransparency,
+// 			'alpha'						=> $sourceAlpha,
+// 			'transindex'				=> $sourceTransparentIndex,
+// 			'colors'					=> $sourceColors,
+// 			'quantize'					=> $quantize,
+// 			'quantizer'					=> $quantizer
+// 		), true));
+		
+		// Resize & resample the image
+		imagecopyresampled($targetImage, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+		
+		// Sharpen image if possible and requested
+		if (!$quantize || SQUEEZR_IMAGE_FORCE_SHARPEN) {
+			self::_sharpenImage($targetImage, $width, $targetWidth);
+		}
+		
+		// If the original image had alpha transparency: Determine if the resampled image also has transparent pixels
+		if ($sourceAlpha){
+			$transparencyThreshold		= round(127 * max(0, min(1, floatval(SQUEEZR_IMAGE_TRANSPARENCY_THRESHOLD))));
+			$stepX						= min(max(floor($targetWidth / 50), 1), 10);
+			$stepY						= min(max(floor($targetHeight / 50), 1), 10);
+			$quantize					= true;
+			for ($column = 0; $column < $targetWidth; $column += $stepX) {
+				for ($row = 0; $row < $targetHeight; $row += $stepY) {
+					$color				= imagecolorsforindex($targetImage, imagecolorat($targetImage, $column, $row));
+					if ($color['alpha'] > $transparencyThreshold) {
+						$quantize		= false;
+						break 2;
+					}
+				}
+			}
+		}
+
+		// If the image should be quantized internally
+		if ($quantize && ($quantizer == self::QUANTIZER_INTERNAL)) {
+			imagetruecolortopalette($targetImage, true, $sourceColors);
+		}
+			
+		// Save the image
+		$saved							= imagepng($targetImage, $target);
+			
+		// Destroy the source image descriptor
+		imagedestroy($sourceImage);
+		
+		// Destroy the target image descriptor
+		imagedestroy($targetImage);
+		
+		// If the image should be quantized using an external tool
+		if ($saved && $quantize && ($quantizer != self::QUANTIZER_INTERNAL)) {
+			$cmd						= sprintf(self::$_quantizers[$quantizer], max(1, min(10, intval(SQUEEZR_IMAGE_PNG_QUANTIZER_SPEED))), escapeshellarg($target));
+			@exec($cmd);
+		}
+		
+		return $saved;
+	}
+	
+	/**
+	 * Downscale a JPEG image
+	 *
+	 * @param string $source			Source image path
+	 * @param int $width				Source image width
+	 * @param int $height				Source image height
+	 * @param string $target			Target image path
+	 * @param int $targetWidth			Target image width
+	 * @param int $targetHeight			Target image height
+	 * @return boolean					Downscaled image has been saved
+	 */
+	protected static function _downscaleJpeg($source, $width, $height, $target, $targetWidth, $targetHeight) {
+		$sourceImage					= @imagecreatefromjpeg($source);
+		$targetImage	        		= imagecreatetruecolor($targetWidth, $targetHeight);
+		
+		// Enable interlacing for progressive JPEGs
+		imageinterlace($targetImage, true);
+		
+		// Resize, resample and sharpen the image
+		imagecopyresampled($targetImage, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+		self::_sharpenImage($targetImage, $width, $targetWidth);
+		
+		// Save the target JPEG image
+		$saved							= imagejpeg($targetImage, $target, min(100, max(1, intval(SQUEEZR_IMAGE_JPEG_QUALITY))));
+		
+		// Destroy the source image descriptor
+		imagedestroy($sourceImage);
+		
+		// Destroy the target image descriptor
+		imagedestroy($targetImage);
+		
+		return $saved;
+	}
+	
+	/**
+	 * Downscale a GIF image
+	 * 
+	  * @param string $source			Source image path
+	 * @param int $width				Source image width
+	 * @param int $height				Source image height
+	 * @param string $target			Target image path
+	 * @param int $targetWidth			Target image width
+	 * @param int $targetHeight			Target image height
+	 * @return boolean					Downscaled image has been saved
+	 */
+	protected static function _downscaleGif($source, $width, $height, $target, $targetWidth, $targetHeight) {
+		$sourceImage					= @imagecreatefromgif($source);
+		$targetImage	        		= imagecreatetruecolor($targetWidth, $targetHeight);
+		
+		// Determine the transparent color
+		$sourceTransparentIndex			= imagecolortransparent($sourceImage);
+		$sourceTransparentColor			= ($sourceTransparentIndex >= 0) ? imagecolorsforindex($sourceImage, $sourceTransparentIndex) : null;
+		
+		// Allocate transparency for the target image if needed
+		if ($sourceTransparentColor !== null) {
+			$targetTransparentColor		= imagecolorallocate($targetImage, $sourceTransparentColor['red'], $sourceTransparentColor['green'], $sourceTransparentColor['blue'] );
+			$targetTransparentIndex		= imagecolortransparent($targetImage, $targetTransparentColor);
+    		imageFill($targetImage, 0, 0, $targetTransparentIndex);
+		}
+		
+		// Resize & resample the image (no sharpening)
+		imagecopyresampled($targetImage, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+		
+		// Save the target GIF image
+		$saved							= imagegif($targetImage, $target);
+		
+		// Destroy the source image descriptor
+		imagedestroy($sourceImage);
+		
+		// Destroy the target image descriptor
+		imagedestroy($targetImage);
+		
+		return $saved;
+	}
+	
+	/**
+	 * Sharpen an image
+	 * 
+	 * @param resource $image			Image resource
+	 * @param int $width				Original image width
+	 * @param int $targetWidth			Downsampled image width
+	 * @return void
+	 */
+	protected static function _sharpenImage($image, $width, $targetWidth) {
+		
+		// Sharpen image if possible and requested
+		if (!!SQUEEZR_IMAGE_SHARPEN && function_exists('imageconvolution')) {
+			$intFinal					= $targetWidth * (750.0 / $width);
+			$intA   		  			= 52;
+			$intB     					= -0.27810650887573124;
+			$intC     					= .00047337278106508946;
+			$intRes   					= $intA + $intB * $intFinal + $intC * $intFinal * $intFinal;
+			$intSharpness				= max(round($intRes), 0);
+			$arrMatrix					= array(
+				array(-1, -2, -1),
+				array(-2, $intSharpness + 12, -2),
+				array(-1, -2, -1)
+			);
+			imageconvolution($image, $arrMatrix, $intSharpness, 0);
+		}
+	}
+	
+	/**
+	 * Enable transparency on an image resource
+	 * 
+	 * @param resource $image			Image resource
+	 * @param array $transparentColor	Transparent color
+	 * @return void
+	 */
+	protected static function _enableTranparency($image, array $transparentColor = null) {
+		if ($transparentColor === null) {
+			$transparentColor			= array('red' => 0, 'green' => 0, 'blue' => 0, 'alpha' => 127);
+		}
+		$targetTransparent				= imagecolorallocatealpha($image, $transparentColor['red'], $transparentColor['green'], $transparentColor['blue'], $transparentColor['alpha']);
+		$targetTransparentIndex			= imagecolortransparent($image, $targetTransparent);
+		imageFill($image, 0, 0, $targetTransparent);
+		imagealphablending($image, false);
+		imagesavealpha($image, true);
 	}
 }

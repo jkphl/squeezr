@@ -1,7 +1,8 @@
 body {
 	font-family: Arial, Helvetica, sans-serif;
 	line-height: 1.6;
-	padding: 0;
+	padding: 1px;
+	margin: 0;
 }
 section {
 	margin: 2em;
@@ -21,4 +22,19 @@ ol {
 	background-color: #eee;
 	padding: 1em 3.5em;
 	white-space: pre-wrap;
+}
+div.images {
+	display: table;
+	table-layout: fixed;
+	max-width: 600px;
+	border-spacing: 2px;
+	border-collapse: separate;
+}
+div.images a {
+	display: table-cell;
+	width: 50%;
+}
+div.images img {
+	width: 100%;
+	height: auto;
 }

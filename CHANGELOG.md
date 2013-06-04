@@ -1,4 +1,4 @@
-Beta 2 (2013-06-03)
+Beta 2 (2013-06-04)
 -------------------
 
 #### Bugs
@@ -9,6 +9,7 @@ Beta 2 (2013-06-03)
 
 1.	Support for downscaling of 8-bit PNG images
 2.	Support for external PNG quantizers (pngquant, pngnq)
+3.	Added an example page for image type & format demonstrations
 
 
 Beta 1 (2013-05-24)

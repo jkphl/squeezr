@@ -313,23 +313,6 @@ class Image extends \Tollwerk\Squeezr {
 		if (!$quantize || SQUEEZR_IMAGE_FORCE_SHARPEN) {
 			self::_sharpenImage($targetImage, $width, $targetWidth);
 		}
-		
-		// If the original image had alpha transparency: Determine if the resampled image also has transparent pixels
-		if ($sourceAlpha){
-			$transparencyThreshold		= round(127 * max(0, min(1, floatval(SQUEEZR_IMAGE_TRANSPARENCY_THRESHOLD))));
-			$stepX						= min(max(floor($targetWidth / 50), 1), 10);
-			$stepY						= min(max(floor($targetHeight / 50), 1), 10);
-			$quantize					= true;
-			for ($column = 0; $column < $targetWidth; $column += $stepX) {
-				for ($row = 0; $row < $targetHeight; $row += $stepY) {
-					$color				= imagecolorsforindex($targetImage, imagecolorat($targetImage, $column, $row));
-					if ($color['alpha'] > $transparencyThreshold) {
-						$quantize		= false;
-						break 2;
-					}
-				}
-			}
-		}
 
 		// If the image should be quantized internally
 		if ($quantize && ($quantizer == self::QUANTIZER_INTERNAL)) {

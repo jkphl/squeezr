@@ -24,7 +24,7 @@ $images			= array(
 	6			=> array('256 colors + alpha transparency (8-bit)',	'palette-alpha-8bit.png'),		// PNG
 	7			=> array('Greyscale (8-bit)',						'greyscale-8bit.png'),			// PNG
 	8			=> array('Greyscale + index transparency (8-bit)',	'greyscale-index-8bit.png'),	// PNG
-	9			=> array('Greyscale + alpha transparency (8-bit)',	'greyscale-alpha-8bit.png'),	// PNG
+	9			=> array('Greyscale + alpha transparency (16-bit)',	'greyscale-alpha-16bit.png'),	// PNG
 	10			=> array('TrueColor (24-bit)',						'truecolor-24bit.png'),			// PNG
 	11			=> array('TrueColor + alpha transparency (32-bit)', 'truecolor-alpha-32bit.png'),	// PNG
 );
@@ -45,7 +45,7 @@ $headings		= array(
 	<body id="body">
 		<section>
 			<h1>squeezr | image types &amp; formats</h1>
-			<p>Use this page to see squeezr's work on different image types &amp; formats. The original images (left side) are all 2500 x 1650 pixels, the downscaled ones (right side) are <script type="text/javascript">var aspect = 2500 / 1668, breakpoint = parseInt(document.cookie.split('squeezr.images=')[1].split('px;').shift()); document.write(breakpoint + ' x ' + Math.round(breakpoint / aspect));</script> pixels (resulting from your screen dimensions). Please click on the images to see them in their original size (will open new windows). Click on the link at the bottom to change the page's background color and see the transparency effects.</p>
+			<p>Use this page to see squeezr's work on different image types &amp; formats. The original images (left side) are all 2300 x 2300 pixels, the downscaled ones (right side) are <script type="text/javascript">var breakpoint = parseInt(document.cookie.split('squeezr.images=')[1].split('px;').shift()); document.write(breakpoint + ' x ' + breakpoint);</script> pixels (resulting from your screen dimensions). Please click on the images to see them in their original size (will open new windows). Click on the link at the bottom to change the page's background color and see the transparency effects.</p>
 			<form method="get">Display: <select name="type" onchange="this.form.submit();"><option value="0">--- All images types &amp; formats ---</option><?php
 				$selected			= empty($_GET['type']) ? 0 : intval($_GET['type']);
 				$optgroup			= '';

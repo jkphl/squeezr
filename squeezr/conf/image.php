@@ -48,8 +48,8 @@ define('SQUEEZR_IMAGE_SHARPEN', false);
 /**
  * Force image sharpening
  * 
- * In some special cases image sharpening is suspended, e.g. when downscaling 8-bit PNG images, as
- * sharpening significantly worsens image quality in these cases. Activate this option to force
+ * In some situations image sharpening is suspended by default, e.g. when downscaling 8-bit PNG images, as
+ * sharpening seriously affects image quality in these cases. Activate this option to force
  * sharpening anyway.
  *
  * @var boolean
@@ -67,18 +67,6 @@ define('SQUEEZR_IMAGE_FORCE_SHARPEN', false);
  * @var boolean
  */
 define('SQUEEZR_IMAGE_COPY_UNDERSIZED', false);
-
-/**
- * Alpha transparency threshold
- *
- * This value determines as to which opacity a image pixel is considered transparent. Enter a floating
- * point value between 0.0 and 1.0 here. 0.0 means "zero tolerance", so only pixels that are truly completely
- * transparent are considered as such. 1 means "every pixel is transparent" (which doesn't make sense
- * of course). A reasonable value could be e.g. 0.1;
- *
- * @var string
- */
-define('SQUEEZR_IMAGE_TRANSPARENCY_THRESHOLD', 0.1);
 
 /**
  * 8-bit PNG quantizer

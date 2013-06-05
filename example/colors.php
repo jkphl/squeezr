@@ -73,7 +73,7 @@ $headings		= array(
 					<a href="img/colors/<?php echo $image[1]; ?>" target="_blank"><img src="img/colors/<?php echo $image[1]; ?>"/></a>
 				</div><?php
 				endforeach;
-			?><p><a href="8bit-transparent.html">Reload this page</a> | <a href="javascript:document.getElementById('body').style.backgroundColor = 'rgb(' + Math.round(Math.random() * 255) + ',' + Math.round(Math.random() * 255) + ',' + Math.round(Math.random() * 255) + ')'">Change background color</a></p>
+			?><p><a href="8bit-transparent.html">Reload this page</a> | <a href="#" onclick="document.getElementById('body').style.backgroundColor = 'rgb(' + Math.round(Math.random() * 255) + ',' + Math.round(Math.random() * 255) + ',' + Math.round(Math.random() * 255) + ')';return false;">Change background color</a></p>
 		</section>
 	</body>
 </html>

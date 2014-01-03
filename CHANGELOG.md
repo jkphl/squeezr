@@ -1,3 +1,11 @@
+v1.0.4 First officially stable release
+--------------------------------------
+
+#### Corrections
+
+1.	Switched source code comments to  MIT license
+
+
 Beta 3 (2013-10-13)
 -------------------
 

@@ -5,11 +5,11 @@ squeezr example page for 8-bit PNG image
 
 @package		squeezr
 @author			Joschi Kuphal <joschi@kuphal.net>
-@copyright		Copyright © 2013 Joschi Kuphal http://joschi.kuphal.net
+@copyright		Copyright © 2014 Joschi Kuphal <joschi@kuphal.net>, http://jkphl.is
 @link			http://squeezr.it
 @github			https://github.com/jkphl/squeezr
 @twitter		@squeezr
-@license		http://creativecommons.org/licenses/by/3.0/ Creative Commons Attribution 3.0 Unported License
+@license		https://github.com/jkphl/squeezr/blob/master/LICENSE.txt MIT License
 @since			1.0b2
 @version		1.0b
 

@@ -1,0 +1,32 @@
+{
+  "name": "squeezr",
+  "version": "v1.0.4",
+  "description": "Another take on device-aware adaptive images and server side CSS3 media queries",
+  "main": ["squeezr/index.php", "squeezr/squeezr.min.js"]
+  "keywords": [
+    "responsive",
+    "rwd",
+    "device-aware",
+    "adaptive",
+    "image",
+    "css3",
+    "media",
+    "query",
+    "css"
+  ],
+  "authors": [
+    "Joschi Kuphal <joschi@kuphal.net>"
+  ],
+  "license": "MIT",
+  "homepage": "http://squeezr.it",
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "example",
+    "Gruntfile.js",
+    "composer.json",
+    "package.json"
+  ]
+}

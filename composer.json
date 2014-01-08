@@ -1,0 +1,26 @@
+{
+  "name" : "jkphl/squeezr",
+  "description" : "Another take on device-aware adaptive images and server side CSS3 media queries, made by Joschi Kuphal (@jkphl), licensed under the terms of the MIT license",
+  "repositories" : [ {
+    "type" : "composer",
+    "url" : "https://packagist.org/"
+  }, {
+    "type" : "vcs",
+    "url" : "https://github.com/jkphl/squeezr"
+  } ],
+  "authors" : [ {
+    "name" : "Joschi Kuphal",
+    "email" : "joschi@kuphal.net",
+    "homepage" : "http://jkphl.is",
+    "role" : "Developer"
+  } ],
+  "support" : {
+    "email" : "joschi@kuphal.net",
+    "issues" : "https://github.com/jkphl/squeezr/issues",
+    "source" : "https://github.com/jkphl/squeezr"
+  },
+  "keywords" : [ "responsive", "rwd", "device-aware", "adaptive", "image", "css3", "media", "query", "css" ],
+  "minimum-stability" : "stable",
+  "license" : "MIT",
+  "type" : "library"
+}

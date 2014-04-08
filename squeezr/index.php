@@ -55,7 +55,7 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
 			// Include the image engine configuration
 			require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'image.php';
 			
-			// If the CSS engine hasn't been disabled temporarily
+			// If the image engine hasn't been disabled temporarily
 			if (SQUEEZR_IMAGE) {
 			
 				// Include the image engine itself

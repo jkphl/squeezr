@@ -5,7 +5,7 @@
  * 
  * @package		squeezr
  * @author		Joschi Kuphal <joschi@kuphal.net>
- * @copyright	Copyright © 2014 Joschi Kuphal <joschi@kuphal.net>, http://jkphl.is
+ * @copyright	Copyright © 2017 Joschi Kuphal <joschi@kuphal.net>, http://jkphl.is
  * @link		http://squeezr.it
  * @github		https://github.com/jkphl/squeezr
  * @twitter		@squeezr
@@ -121,19 +121,19 @@ class Css extends \Tollwerk\Squeezr {
 	/**
 	 * Width condition
 	 *
-	 * @var unknown
+	 * @var int
 	*/
 	const CONDITION_WIDTH = 1;
 	/**
 	 * Height condition
 	 *
-	 * @var unknown
+	 * @var int
 	 */
 	const CONDITION_HEIGHT = 2;
 	/**
 	 * Resolution condition
 	 *
-	 * @var unknown
+	 * @var int
 	 */
 	const CONDITION_RESOLUTION = 4;
 	

@@ -1,30 +1,30 @@
 #############################################################################################################
 # Main squeezr rewrite rules (and some more stuff)
-# 
+#
 # Below you can find the main rewrite rules squeezr needs to work, plus some .htaccess candies that should
 # also improve your website's speed. In case you already have a .htaccess file for your website, please make
 # sure you don't simply overwrite it with this file, since it will most likely break your existing setup.
 # Instead you will have to integrate the following rules thoroughly into your setup. You have been warned. ;)
 #
-# @package        squeezr
-# @author         Joschi Kuphal <joschi@kuphal.net>
-# @copyright      Copyright © 2017 Joschi Kuphal <joschi@kuphal.net>, http://jkphl.is
-# @link           http://squeezr.it
-# @github         https://github.com/jkphl/squeezr
-# @twitter        @squeezr
-# @license        https://github.com/jkphl/squeezr/blob/master/LICENSE.txt MIT License
-# @since          1.0b
-# @version        1.0b
+# @package squeezr
+# @author Joschi Kuphal <joschi@kuphal.net>
+# @copyright Copyright © 2017 Joschi Kuphal <joschi@kuphal.net>, http://jkphl.is
+# @link http://squeezr.it
+# @github https://github.com/jkphl/squeezr
+# @twitter @squeezr
+# @license https://github.com/jkphl/squeezr/blob/master/LICENSE.txt MIT License
+# @since 1.0b
+# @version 1.0b
 #############################################################################################################
 
-# URL rewriting (required for squeezr to work) 
+# URL rewriting (required for squeezr to work)
 <IfModule mod_rewrite.c>
     Options +FollowSymlinks
 
     # Start the rewrite engine
     RewriteEngine On
     RewriteBase /
-    
+
 #############################################################################################################
 # REDIRECT ANY DIRECT IMAGE REQUEST TO A CACHED VERSION
 #
@@ -46,8 +46,8 @@
 # apply the default setup for squeezr (i.e. put everything into a directory named "squeezr" under your
 # website's document root), then you shouldn't have to change anything.
 #############################################################################################################
-    
-    
+
+
 #############################################################################################################
 # REDIRECT ANY DIRECT CSS REQUEST TO A CACHED VERSION
 #
@@ -78,19 +78,19 @@
 <IfModule mod_expires.c>
 
     ExpiresActive on
-    
+
     # Images
     ExpiresByType image/gif "access plus 35 days"
     ExpiresByType image/png "access plus 35 days"
     ExpiresByType image/jpg "access plus 35 days"
     ExpiresByType image/jpeg "access plus 35 days"
-    
+
     # Text based files
     ExpiresByType text/css "access plus 35 days"
     ExpiresByType text/xml "access plus 35 days"
     ExpiresByType text/javascript "access plus 35 days"
     ExpiresByType application/x-shockwave-flash "access plus 35 days"
-    
+
     # Default expiration
     ExpiresDefault "access plus 1 days"
 

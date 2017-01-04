@@ -8,7 +8,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "rm -Rf squeezr/cache/* && squeezr/vendor/bin/phpunit && istanbul test _mocha --report html -- tests/*.js --reporter spec"
+    "test": "rm -Rf tmp squeezr/cache/* && istanbul test _mocha --report html -- tests/*.js --reporter spec && squeezr/vendor/bin/phpunit",
+    "test-hhvm": "rm -Rf tmp squeezr/cache/* && istanbul test _mocha --report html -- tests/*.js --reporter spec && squeezr/vendor/bin/phpunit --coverage-clover build/logs/clover.xml"
   },
   "repository": {
     "type": "git",
@@ -33,10 +34,13 @@
   "homepage": "https://github.com/jkphl/squeezr#readme",
   "devDependencies": {
     "coveralls": "^2.11.15",
+    "dotenv": "^2.0.0",
+    "glob": "^7.1.1",
     "gulp": "^3.9.1",
     "gulp-rename": "^1.2.2",
     "gulp-uglify": "^2.0.0",
     "gulp-watch": "^4.3.11",
+    "image-size": "^0.5.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "mocha-lcov-reporter": "^1.2.0",

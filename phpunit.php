@@ -24,6 +24,8 @@
  ***********************************************************************************/
 
 error_reporting(E_ALL);
+
+// Require the autoloader
 $autoloader = __DIR__.'/squeezr/vendor/autoload.php';
 if (!file_exists($autoloader)) {
     echo "Composer autoloader not found: $autoloader".PHP_EOL;
@@ -31,3 +33,14 @@ if (!file_exists($autoloader)) {
     exit(1);
 }
 require $autoloader;
+
+// Require the environment variables
+$dotenv = new Dotenv\Dotenv(__DIR__);
+$dotenv->load();
+
+try {
+    $dotenv->required('TEST_DOMAIN')->notEmpty();
+} catch (\Exception $e) {
+    echo $e->getMessage().PHP_EOL;
+    die(1);
+}

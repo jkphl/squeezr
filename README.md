@@ -1,5 +1,5 @@
-squeezr [![Build Status](https://travis-ci.org/jkphl/squeezr.svg?branch=dev)](https://travis-ci.org/jkphl/squeezr)
-=======
+squeezr [![Build Status](https://travis-ci.org/jkphl/squeezr.svg?branch=master)](https://travis-ci.org/jkphl/squeezr)
+=====================================================================================================================
 is basically just another take on improving browsing experience across the ever-growing
 multitude of web enabled devices. It can help you preserve your visitor's bandwidth by
 **shrinking your website's images and CSS files** to fit the device-specific limitations.

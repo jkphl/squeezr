@@ -11,10 +11,6 @@ env:
 
 sudo: required
 
-branches:
-  only:
-  - dev
-
 matrix:
   allow_failures:
     - php: hhvm

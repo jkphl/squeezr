@@ -16,12 +16,6 @@
 
 namespace Tollwerk\Squeezr\Css\Minifier;
 
-// Require the minification provider interface
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'Minifier.php';
-
-// Require the minification provider exception
-require_once __DIR__.DIRECTORY_SEPARATOR.'Exception.php';
-
 /**
  * Minify minification provider
  *
@@ -32,30 +26,6 @@ require_once __DIR__.DIRECTORY_SEPARATOR.'Exception.php';
  */
 class Minify implements \Tollwerk\Squeezr\Css\Minifier
 {
-
-    /**
-     * Constructor
-     *
-     * @throws \Tollwerk\Squeezr\Css\Minifier\Exception        If the minify installation is invalid
-     * @todo joschi                                            Use Minify_CSS instead of Minify_CSS_Compressor in order to get some options (necessary?)
-     */
-    public function __construct()
-    {
-
-        // Check if minify is installed properly
-        if (!@is_readable(SQUEEZR_PLUGINS.'minify'.DIRECTORY_SEPARATOR.'min'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Minify'.DIRECTORY_SEPARATOR.'CSS'.DIRECTORY_SEPARATOR.'Compressor.php')) {
-            throw new \Tollwerk\Squeezr\Css\Minifier\Exception(sprintf(\Tollwerk\Squeezr\Css\Minifier\Exception::INVALID_MINIFICATION_PROVIDER_MSG,
-                'minify'), \Tollwerk\Squeezr\Css\Minifier\Exception::INVALID_MINIFICATION_PROVIDER);
-        }
-
-        // Include and verify the minify compressor class
-        require_once SQUEEZR_PLUGINS.'minify'.DIRECTORY_SEPARATOR.'min'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Minify'.DIRECTORY_SEPARATOR.'CSS'.DIRECTORY_SEPARATOR.'Compressor.php';
-        if (!@class_exists('\\Minify_CSS_Compressor', false)) {
-            throw new \Tollwerk\Squeezr\Css\Minifier\Exception(sprintf(\Tollwerk\Squeezr\Css\Minifier\Exception::INVALID_MINIFICATION_PROVIDER_MSG,
-                'minify'), \Tollwerk\Squeezr\Css\Minifier\Exception::INVALID_MINIFICATION_PROVIDER);
-        }
-    }
-
     /**
      * Minify a CSS text
      *

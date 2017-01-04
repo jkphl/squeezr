@@ -1,0 +1,54 @@
+language: php
+
+php:
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+
+env:
+  - TRAVIS_NODE_VERSION="6"
+
+sudo: required
+
+branches:
+  only:
+  - dev
+
+matrix:
+  allow_failures:
+    - php: hhvm
+
+before_script:
+  - echo "TEST_DOMAIN=http://example.com" >> .env
+  - echo "127.0.0.1    example.com" | sudo tee -a /etc/hosts
+  - sudo apt-get update
+  - sudo apt-get install apache2 libapache2-mod-fastcgi
+  # enable php-fpm
+  - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then sudo cp tests/fixture/php-fpm-www.conf ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/; fi
+  - sudo a2enmod rewrite actions fastcgi alias
+  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - echo 'date.timezone = Europe/Berlin' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+  # configure apache virtual hosts
+  - sudo cp -f tests/fixture/travis-ci-apache.conf /etc/apache2/sites-available/default
+  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
+  - sudo service apache2 restart
+  # Update and install composer & NPM dependencies
+  - travis_retry composer self-update
+  - travis_retry composer install --no-interaction --prefer-source
+
+install:
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
+  - npm install
+
+script:
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" == "hhvm" ]; then npm run test; fi;'
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then npm run test-hhvm; fi;'
+
+after_script:
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php squeezr/vendor/bin/coveralls -v; fi;'
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then squeezr/vendor/bin/test-reporter; fi;'
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then wget https://scrutinizer-ci.com/ocular.phar; fi;'
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml; fi;'

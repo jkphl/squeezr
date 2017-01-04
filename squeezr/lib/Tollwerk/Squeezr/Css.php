@@ -16,8 +16,7 @@
 
 namespace Tollwerk\Squeezr;
 
-// Require the abstract engine base class
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'Squeezr.php';
+use Tollwerk\Squeezr\Css\Minifier\Minify;
 
 /**
  * CSS engine / media query proxy
@@ -611,32 +610,9 @@ class Css extends \Tollwerk\Squeezr
      */
     protected function _compileCacheClassCode()
     {
-
-        // Register a minification provider (if any)
-        if (SQUEEZR_CSS_MINIFICATION_PROVIDER) {
-            $minificationProvider = ucfirst(strtolower(SQUEEZR_CSS_MINIFICATION_PROVIDER));
-
-            // If the minification provider class file doesn't exist: error
-            if (!@is_readable(__DIR__.DIRECTORY_SEPARATOR.'Css'.DIRECTORY_SEPARATOR.'Minifier'.DIRECTORY_SEPARATOR.$minificationProvider.'.php')) {
-                require_once __DIR__.DIRECTORY_SEPARATOR.'Css'.DIRECTORY_SEPARATOR.'Minifier'.DIRECTORY_SEPARATOR.'Exception.php';
-                throw new \Tollwerk\Squeezr\Css\Minifier\Exception(sprintf(\Tollwerk\Squeezr\Css\Minifier\Exception::INVALID_MINIFICATION_PROVIDER_MSG,
-                    SQUEEZR_CSS_MINIFICATION_PROVIDER),
-                    \Tollwerk\Squeezr\Css\Minifier\Exception::INVALID_MINIFICATION_PROVIDER);
-            }
-
-            // Require and verify the minification provider
-            require_once __DIR__.DIRECTORY_SEPARATOR.'Css'.DIRECTORY_SEPARATOR.'Minifier.php';
-            require_once __DIR__.DIRECTORY_SEPARATOR.'Css'.DIRECTORY_SEPARATOR.'Minifier'.DIRECTORY_SEPARATOR.$minificationProvider.'.php';
-            $minificationProvider = '\\Tollwerk\\Squeezr\\Css\\Minifier\\'.$minificationProvider;
-            if (!@class_exists($minificationProvider, false) || !is_subclass_of($minificationProvider,
-                    '\\Tollwerk\\Squeezr\\Css\\Minifier')
-            ) {
-                throw new \Tollwerk\Squeezr\Css\Minifier\Exception(sprintf(\Tollwerk\Squeezr\Css\Minifier\Exception::INVALID_MINIFICATION_PROVIDER_MSG,
-                    SQUEEZR_CSS_MINIFICATION_PROVIDER),
-                    \Tollwerk\Squeezr\Css\Minifier\Exception::INVALID_MINIFICATION_PROVIDER);
-            }
-
-            $this->_minifier = new $minificationProvider();
+        // Instantiate a minification provider (if enabled)
+        if (SQUEEZR_CSS_MINIFY) {
+            $this->_minifier = new Minify();
         }
 
         // Parse the CSS file and extract breakpoint and CSS block info

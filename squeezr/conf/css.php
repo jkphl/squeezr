@@ -38,8 +38,8 @@ define('SQUEEZR_CSS', true);
  * copy of Minify preinstalled (you can find it under SQUEEZR_ROOT/plugins/minify). Minify is a
  * great project of it's own, please visit it at it's homepage or at it's GitHub repository:
  *
- * @link        https://code.google.com/p/minify/
- * @github        https://github.com/mrclay/minify
+ * @link https://code.google.com/p/minify/
+ * @github https://github.com/mrclay/minify
  *
  * If you do not want to use CSS minification provide NULL here.
  *

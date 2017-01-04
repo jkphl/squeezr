@@ -1,0 +1,64 @@
+language: php
+
+php:
+  - 5.6
+  - 7.0
+
+env:
+  - APP_ENV=development
+
+services:
+  - mysql
+
+sudo: required
+
+matrix:
+  allow_failures:
+    - php: hhvm
+
+before_script:
+  # Update and install base system
+  - sudo apt-get update
+  - sudo apt-get install -y --force-yes apache2 libapache2-mod-fastcgi libapache2-mod-perl2 make
+  - sudo apt-get install -y --force-yes php5-dev php-pear php5-mysql php5-curl php5-gd php5-json php5-sqlite php5-pgsql
+  # Prepare directories & files
+  - sudo cp -f ./src/Admin/Tests/Fixture/apache2.travis.include /etc/apache2/sites-enabled/default
+  - sudo mkdir /var/run/php-fpm
+  - mkdir --parents /home/travis/build/tollwerk/admin/tmp/warmup/config/vhosts-enabled/admin.test
+  - cp ./src/Admin/Tests/Fixture/fpm.travis.conf /home/travis/build/tollwerk/admin/tmp/warmup/config/vhosts-enabled/admin.test/fpm-$(phpenv version-name).conf
+  - sed -e "s?%PHPENV_VERSION_NAME%?$(phpenv version-name)?g" --in-place /home/travis/build/tollwerk/admin/tmp/warmup/config/vhosts-enabled/admin.test/fpm-$(phpenv version-name).conf
+  - cp ./src/Admin/Tests/Fixture/config.travis.yml config/config.yml
+  - sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place config/config.yml
+  - sed -e "s?%PHPENV_VERSION_NAME%?$(phpenv version-name)?g" --in-place config/config.yml
+  - echo "127.0.0.1    example.com" | sudo tee -a /etc/hosts
+  # Configure PHP / FPM
+  - cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+  - cat ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+  - echo "include=/home/travis/build/tollwerk/admin/tmp/*/config/vhosts-enabled/*/fpm-$(phpenv version-name).conf" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+  - echo 'date.timezone = Europe/Berlin' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - sudo a2enmod rewrite actions fastcgi alias perl
+  # Update and install composer dependencies
+  - travis_retry composer self-update
+  - travis_retry composer install --no-interaction --prefer-source
+  # Create and prepare a test database
+  - mysql -e "create database IF NOT EXISTS admin_test;" -uroot
+  - ./vendor/bin/doctrine orm:schema-tool:update --force
+  - ./vendor/bin/doctrine orm:generate-proxies
+  # Restart services
+  - sudo groupadd nobody
+  - sudo ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+  - sudo service apache2 restart
+
+script:
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" == "hhvm" ]; then vendor/bin/phpunit; fi;'
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then vendor/bin/phpunit --coverage-clover build/logs/clover.xml; fi;'
+
+after_script:
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php vendor/bin/coveralls -v; fi;'
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then vendor/bin/test-reporter; fi;'
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then wget https://scrutinizer-ci.com/ocular.phar; fi;'
+  - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml; fi;'
+
+addons:
+    code_climate:
+        repo_token: 792de4096dd74f49171c6457e747f44d1b8c75e158d2d198b7272df2f8dcbeaf

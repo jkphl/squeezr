@@ -2,7 +2,7 @@
   "name": "squeezr",
   "version": "v1.0.4",
   "description": "Another take on device-aware adaptive images and server side CSS3 media queries",
-  "main": ["squeezr/index.php", "squeezr/squeezr.min.js"]
+  "main": ["squeezr/index.php", "squeezr/squeezr.min.js"],
   "keywords": [
     "responsive",
     "rwd",

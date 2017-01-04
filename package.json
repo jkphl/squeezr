@@ -1,0 +1,47 @@
+{
+  "name": "squeezr",
+  "version": "1.0.4",
+  "description": "Another take on device-aware adaptive images and server side CSS3 media queries",
+  "main": "squeezr/index.php",
+  "directories": {
+    "example": "example",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jkphl/squeezr.git"
+  },
+  "keywords": [
+    "responsive",
+    "rwd",
+    "device-aware",
+    "adaptive",
+    "image",
+    "css3",
+    "media",
+    "query",
+    "css"
+  ],
+  "author": "Joschi Kuphal <joschi@kuphal.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jkphl/squeezr/issues"
+  },
+  "homepage": "https://github.com/jkphl/squeezr#readme",
+  "devDependencies": {
+    "coveralls": "^2.11.15",
+    "gulp": "^3.9.1",
+    "gulp-phpunit": "^0.21.4",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^2.0.0",
+    "gulp-watch": "^4.3.11",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "mocha-lcov-reporter": "^1.2.0",
+    "phantomjs-prebuilt": "^2.1.14",
+    "should": "^11.1.2"
+  }
+}

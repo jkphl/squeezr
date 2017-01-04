@@ -1,9 +1,10 @@
-## 1.5.0 Maintenance release (unreleased)
+## 1.5.0 Maintenance release (2017-01-04)
 * Switched to composer based dependency installation & autoloading
 * Updated dependencies
 * Cleaned up codebase & removed redundant bundled packages
 * Added some tests
 * Automated JavaScript uglification
+* Fixed rounding issues in client JavaScript ([#9](https://github.com/jkphl/squeezr/issues/9))
 
 ##  1.0.4 First officially stable release
 * Switched source code comments to  MIT license

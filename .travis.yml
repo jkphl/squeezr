@@ -32,9 +32,10 @@ before_script:
   - sudo cp -f tests/fixture/travis-ci-apache.conf /etc/apache2/sites-available/default
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
   - sudo service apache2 restart
-  # Update and install composer dependencies
+  # Update and install composer & NPM dependencies
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source
+  - npm install
 
 script:
   - bash -c 'if [ "$TRAVIS_PHP_VERSION" == "hhvm" ]; then npm run test; fi;'

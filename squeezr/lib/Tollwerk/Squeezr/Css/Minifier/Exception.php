@@ -16,8 +16,6 @@
 
 namespace Tollwerk\Squeezr\Css\Minifier;
 
-require_once dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR.'Exception.php';
-
 /**
  * Minification provider exception
  *

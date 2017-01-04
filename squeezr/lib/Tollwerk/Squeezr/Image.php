@@ -16,9 +16,6 @@
 
 namespace Tollwerk\Squeezr;
 
-// Require the abstract engine base class
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'Squeezr.php';
-
 /**
  * Image engine
  *

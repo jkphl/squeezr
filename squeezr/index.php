@@ -23,6 +23,13 @@
  * @version 1.0b
  */
 
+use Tollwerk\Squeezr\Cleaner;
+use Tollwerk\Squeezr\Css;
+use Tollwerk\Squeezr\Image;
+
+// Require the composer autoloader
+require_once __DIR__.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
+
 // If a squeezr engine has been requested and a file to process is given
 if (!empty($_GET['engine']) && !empty($_GET['source'])) {
     switch ($_GET['engine']) {
@@ -36,11 +43,8 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
             // If the CSS engine hasn't been disabled temporarily
             if (SQUEEZR_CSS) {
 
-                // Include the CSS engine itself
-                require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Tollwerk'.DIRECTORY_SEPARATOR.'Squeezr'.DIRECTORY_SEPARATOR.'Css.php';
-
                 // Squeeze, cache and send the CSS file
-                \Tollwerk\Squeezr\Css::instance($_GET['source'])->send();
+                Css::instance($_GET['source'])->send();
 
                 // Else: Don't care about caching and deliver the original file
             } else {
@@ -58,11 +62,8 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
             // If the image engine hasn't been disabled temporarily
             if (SQUEEZR_IMAGE) {
 
-                // Include the image engine itself
-                require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Tollwerk'.DIRECTORY_SEPARATOR.'Squeezr'.DIRECTORY_SEPARATOR.'Image.php';
-
                 // Squeeze, cache and send the image file
-                \Tollwerk\Squeezr\Image::instance($_GET['source'])->send();
+                Image::instance($_GET['source'])->send();
 
                 // Else: Don't care about caching and deliver the original file
             } else {
@@ -79,11 +80,8 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
     // Include the common configuration
     require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'common.php';
 
-    // Include the cache cleaner engine
-    require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Tollwerk'.DIRECTORY_SEPARATOR.'Squeezr'.DIRECTORY_SEPARATOR.'Cleaner.php';
-
     // Clean the cache root directory
-    \Tollwerk\Squeezr\Cleaner::instance(SQUEEZR_CACHEROOT)->clean();
+    Cleaner::instance(SQUEEZR_CACHEROOT)->clean();
 
     // Respond with an empty content
     header('HTTP/1.1 204 No Content');

@@ -14,11 +14,11 @@
  * @version        1.0b
  */
 
+// Require the composer autoloader
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
+
 // Require the custom common configuration
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'common.php';
-
-// Require the exception base class
-require_once __DIR__.DIRECTORY_SEPARATOR.'Tollwerk'.DIRECTORY_SEPARATOR.'Squeezr'.DIRECTORY_SEPARATOR.'Exception.php';
 
 /**
  * squeezr cache root
@@ -28,16 +28,6 @@ require_once __DIR__.DIRECTORY_SEPARATOR.'Tollwerk'.DIRECTORY_SEPARATOR.'Squeezr
  * @var string
  */
 define('SQUEEZR_CACHEROOT', rtrim(SQUEEZR_ROOT, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR);
-
-/**
- * squeezr plugin directory
- *
- * Plugins for squeezr (like CSS minification providers) are put into a directory named "plugins"
- * under the squeezr main directory.
- *
- * @var string
- */
-define('SQUEEZR_PLUGINS', rtrim(SQUEEZR_ROOT, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR);
 
 /**
  * Active breakpoint definition

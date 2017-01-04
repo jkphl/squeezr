@@ -28,21 +28,11 @@
 define('SQUEEZR_CSS', true);
 
 /**
- * CSS minification provider
+ * CSS minification
  *
- * Enter the class name of the CSS minification provider you want to use. The class must be found
- * inside a file with the same name (UpperCamelCased plus .php extension) located in the folder
- * Tollwerk\Squeezr\Css\Minifier, and it must implement the interface Tollwerk\Squeezr\Css\Minifier.
+ * Please specify if you want the CSS output to be minified. There's no reason to disable CSS
+ * minification other than development purposes.
  *
- * Currently only "Minify" as a minification provider is implemented, and squeezr comes with a
- * copy of Minify preinstalled (you can find it under SQUEEZR_ROOT/plugins/minify). Minify is a
- * great project of it's own, please visit it at it's homepage or at it's GitHub repository:
- *
- * @link https://code.google.com/p/minify/
- * @github https://github.com/mrclay/minify
- *
- * If you do not want to use CSS minification provide NULL here.
- *
- * @var string
+ * @var boolean
  */
-define('SQUEEZR_CSS_MINIFICATION_PROVIDER', 'Minify');
+define('SQUEEZR_CSS_MINIFY', true);

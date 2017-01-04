@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "rm -Rf squeezr/cache/* && squeezr/vendor/bin/phpunit && istanbul test _mocha --report html -- tests/*.js --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -34,7 +34,6 @@
   "devDependencies": {
     "coveralls": "^2.11.15",
     "gulp": "^3.9.1",
-    "gulp-phpunit": "^0.21.4",
     "gulp-rename": "^1.2.2",
     "gulp-uglify": "^2.0.0",
     "gulp-watch": "^4.3.11",

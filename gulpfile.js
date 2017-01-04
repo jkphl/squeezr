@@ -14,6 +14,4 @@ gulp.task('watch', () => {
     gulp.watch('squeezr/squeezr.js', ['uglify']);
 });
 
-gulp.task('default', function () {
-    // place code for your default task here
-});
+gulp.task('default', ['uglify']);

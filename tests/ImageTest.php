@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * squeezr
+ *
+ * @category    Tollwerk
+ * @package     Tollwerk\Squeezr
+ * @subpackage  ${NAMESPACE}
+ * @author      Joschi Kuphal <joschi@tollwerk.de> / @jkphl
+ * @copyright   Copyright © 2017 Joschi Kuphal <joschi@tollwerk.de> / @jkphl
+ * @license     http://opensource.org/licenses/MIT The MIT License (MIT)
+ */
+
 /***********************************************************************************
  *  The MIT License (MIT)
  *
@@ -23,11 +34,32 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-error_reporting(E_ALL);
-$autoloader = __DIR__.'/squeezr/vendor/autoload.php';
-if (!file_exists($autoloader)) {
-    echo "Composer autoloader not found: $autoloader".PHP_EOL;
-    echo "Please issue 'composer install' and try again.".PHP_EOL;
-    exit(1);
+use Tollwerk\Squeezr\Image;
+
+/**
+ * Image engine tests
+ *
+ * @package Tollwerk\Squeezr
+ */
+class ImageTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * This method is called before the first test of this test class is run.
+     *
+     * @since Method available since Release 3.4.0
+     */
+    public static function setUpBeforeClass()
+    {
+        $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
+        require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'squeezr'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'image.php';
+    }
+
+    /**
+     * Test the instantiation of the image engine
+     */
+    public function testInstantiation()
+    {
+        $image = Image::instance('tests/fixture/test.jpg');
+        $this->assertInstanceOf('Tollwerk\\Squeezr\\Image', $image);
+    }
 }
-require $autoloader;

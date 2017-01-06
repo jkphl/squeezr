@@ -1,3 +1,6 @@
+## 1.5.1 Feature release (2017-01-06)
+* Extended external configuration possibilities
+
 ## 1.5.0 Maintenance release (2017-01-04)
 * Switched to composer based dependency installation & autoloading
 * Updated dependencies

@@ -1,6 +1,6 @@
 {
   "name": "squeezr",
-  "version": "1.0.4",
+  "version": "1.5.1",
   "description": "Another take on device-aware adaptive images and server side CSS3 media queries",
   "main": "squeezr/index.php",
   "directories": {

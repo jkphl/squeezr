@@ -23,12 +23,32 @@
  * @version 1.0b
  */
 
+// Define a vendor directory constant
+if (!defined('SQUEEZR_VENDOR_DIR')) {
+    define('SQUEEZR_VENDOR_DIR', __DIR__.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR);
+}
+
+// Define a common configuration file
+if (!defined('SQUEEZR_CONFIG_COMMON')) {
+    define('SQUEEZR_CONFIG_COMMON', __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'common.php');
+}
+
+// Define an image configuration file
+if (!defined('SQUEEZR_CONFIG_IMAGE')) {
+    define('SQUEEZR_CONFIG_IMAGE', __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'image.php');
+}
+
+// Define a css configuration file
+if (!defined('SQUEEZR_CONFIG_CSS')) {
+    define('SQUEEZR_CONFIG_CSS', __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'css.php');
+}
+
 use Tollwerk\Squeezr\Cleaner;
 use Tollwerk\Squeezr\Css;
 use Tollwerk\Squeezr\Image;
 
 // Require the composer autoloader
-require_once __DIR__.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
+require_once SQUEEZR_VENDOR_DIR.'autoload.php';
 
 // If a squeezr engine has been requested and a file to process is given
 if (!empty($_GET['engine']) && !empty($_GET['source'])) {
@@ -38,7 +58,7 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
         case 'css':
 
             // Include the CSS engine configuration
-            require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'css.php';
+            require_once SQUEEZR_CONFIG_IMAGE;
 
             // If the CSS engine hasn't been disabled temporarily
             if (SQUEEZR_CSS) {
@@ -57,7 +77,7 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
         case 'image':
 
             // Include the image engine configuration
-            require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'image.php';
+            require_once SQUEEZR_CONFIG_IMAGE;
 
             // If the image engine hasn't been disabled temporarily
             if (SQUEEZR_IMAGE) {
@@ -78,7 +98,7 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
 } else {
 
     // Include the common configuration
-    require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'common.php';
+    require_once SQUEEZR_CONFIG_COMMON;
 
     // Clean the cache root directory
     Cleaner::instance(SQUEEZR_CACHEROOT)->clean();

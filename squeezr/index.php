@@ -58,7 +58,7 @@ if (!empty($_GET['engine']) && !empty($_GET['source'])) {
         case 'css':
 
             // Include the CSS engine configuration
-            require_once SQUEEZR_CONFIG_IMAGE;
+            require_once SQUEEZR_CONFIG_CSS;
 
             // If the CSS engine hasn't been disabled temporarily
             if (SQUEEZR_CSS) {
